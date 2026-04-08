@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ConsultaBet - Nu</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #0b0b0e;
             --card-bg: #16161d;
-            --primary-purple: #8a05be; /* Roxo Nu */
+            --primary-purple: #8a05be;
             --neon-purple: #bc13fe;
             --text-color: #ffffff;
             --success: #00ff88;
@@ -25,19 +26,6 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            overflow-x: hidden;
-        }
-
-        /* Efeito de brilho de fundo */
-        body::before {
-            content: '';
-            position: absolute;
-            width: 300px; height: 300px;
-            background: var(--primary-purple);
-            filter: blur(150px);
-            opacity: 0.2;
-            z-index: -1;
-            top: 10%;
         }
 
         .container {
@@ -47,9 +35,8 @@
             background: var(--card-bg);
             padding: 40px;
             border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(138, 5, 190, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border: 1px solid rgba(255,255,255,0.05);
-            transition: transform 0.3s ease;
         }
 
         h1 {
@@ -60,27 +47,15 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .search-box {
-            position: relative;
-            margin-bottom: 25px;
-        }
-
         input {
             width: 100%;
-            padding: 15px 20px;
+            padding: 15px;
             border-radius: 12px;
             border: 2px solid #2d2d35;
             background: #1c1c24;
             color: white;
-            font-size: 1rem;
+            margin-bottom: 20px;
             box-sizing: border-box;
-            transition: all 0.3s ease;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--neon-purple);
-            box-shadow: 0 0 15px rgba(188, 19, 254, 0.4);
         }
 
         button {
@@ -92,15 +67,12 @@
             color: white;
             font-weight: bold;
             cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
+            transition: 0.3s;
         }
 
         button:hover {
             background: var(--neon-purple);
             box-shadow: 0 0 20px var(--neon-purple);
-            transform: translateY(-2px);
         }
 
         .result {
@@ -108,35 +80,16 @@
             padding: 20px;
             border-radius: 12px;
             display: none;
-            animation: fadeIn 0.5s ease;
             text-align: left;
+            background: rgba(255, 255, 255, 0.05);
             border-left: 4px solid var(--success);
-            background: rgba(0, 255, 136, 0.05);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .status-badge {
-            color: var(--success);
-            font-weight: bold;
-            display: block;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
         }
 
         footer {
             margin-top: 40px;
             font-size: 0.8rem;
             color: #666;
-        }
-
-        .last-update {
-            margin-top: 10px;
-            display: block;
-            font-style: italic;
+            text-align: center;
         }
     </style>
 </head>
@@ -144,65 +97,68 @@
 
     <div class="container">
         <h1>ConsultaBet - Nu</h1>
-        
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="CNPJ, Nome ou Razão Social...">
-        </div>
-        
-        <button onclick="buscar()">Verificar Base Gov</button>
+        <input type="text" id="searchInput" placeholder="CNPJ, Marca ou Razão Social...">
+        <button onclick="buscarNoCSV()">Consultar Planilha</button>
 
         <div id="resultBox" class="result">
-            <span class="status-badge" id="statusTxt">✅ REGULAMENTADA</span>
+            <span id="statusTxt" style="font-weight: bold; display: block; margin-bottom: 10px;"></span>
             <div id="infoData"></div>
         </div>
     </div>
 
     <footer>
-        Elaborado por <strong>Alexandre Gabbia</strong>
-        <span class="last-update" id="updateDate"></span>
+        Elaborado por <strong>Alexandre Gabbia</strong><br>
+        <span id="updateDate">Base: Planilha Oficial SPA/MF 2026</span>
     </footer>
 
     <script>
-        async function buscar() {
-            const input = document.getElementById('searchInput').value.toLowerCase().trim();
-            const cleanInput = input.replace(/\D/g, ''); // Apenas números para CNPJ
-            
+        function buscarNoCSV() {
+            const termoBusca = document.getElementById('searchInput').value.toLowerCase().trim();
+            const cleanBusca = termoBusca.replace(/\D/g, '');
             const resultBox = document.getElementById('resultBox');
             const infoData = document.getElementById('infoData');
-            const updateDate = document.getElementById('updateDate');
+            const statusTxt = document.getElementById('statusTxt');
 
-            try {
-                const response = await fetch('dados.json');
-                const empresas = await response.json();
+            // Lendo o arquivo CSV que você subiu no GitHub
+            Papa.parse("bets.csv", {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    const dados = results.data;
+                    
+                    // Procurar na planilha (ajustado para os nomes das colunas da sua planilha)
+                    const encontrado = dados.find(linha => {
+                        const cnpjPlanilha = (linha["CNPJ"] || "").replace(/\D/g, '');
+                        const razaoSocial = (linha["INTERESSADO"] || "").toLowerCase();
+                        const marca = (linha["MARCA"] || "").toLowerCase();
 
-                // Busca por CNPJ limpo ou por texto no Nome/Razão Social
-                const empresa = empresas.find(e => 
-                    e.cnpj.replace(/\D/g, '') === cleanInput || 
-                    e.nome_fantasia.toLowerCase().includes(input) ||
-                    e.razao_social.toLowerCase().includes(input)
-                );
+                        return (
+                            (cleanBusca !== "" && cnpjPlanilha.includes(cleanBusca)) ||
+                            razaoSocial.includes(termoBusca) ||
+                            marca.includes(termoBusca)
+                        );
+                    });
 
-                resultBox.style.display = 'block';
+                    resultBox.style.display = 'block';
 
-                if (empresa) {
-                    resultBox.style.borderColor = 'var(--success)';
-                    document.getElementById('statusTxt').innerText = "✅ REGULAMENTADA";
-                    document.getElementById('statusTxt').style.color = "var(--success)";
-                    infoData.innerHTML = `
-                        <p><strong>Nome:</strong> ${empresa.nome_fantasia}</p>
-                        <p><strong>Razão Social:</strong> ${empresa.razao_social}</p>
-                        <p><strong>CNPJ:</strong> ${empresa.cnpj}</p>
-                    `;
-                    updateDate.innerText = `Base atualizada em: ${empresa.data_att || 'Não informada'}`;
-                } else {
-                    resultBox.style.borderColor = '#ff4444';
-                    document.getElementById('statusTxt').innerText = "❌ NÃO ENCONTRADA";
-                    document.getElementById('statusTxt').style.color = "#ff4444";
-                    infoData.innerHTML = `<p>Esta empresa não foi localizada na lista oficial da SPA/MF até o momento.</p>`;
+                    if (encontrado) {
+                        statusTxt.innerText = "✅ REGULAMENTADA";
+                        statusTxt.style.color = "var(--success)";
+                        resultBox.style.borderColor = "var(--success)";
+                        infoData.innerHTML = `
+                            <p><strong>Marca(s):</strong> ${encontrado["MARCA"] || 'N/A'}</p>
+                            <p><strong>Razão Social:</strong> ${encontrado["INTERESSADO"] || 'N/A'}</p>
+                            <p><strong>CNPJ:</strong> ${encontrado["CNPJ"] || 'N/A'}</p>
+                        `;
+                    } else {
+                        statusTxt.innerText = "❌ NÃO ENCONTRADA";
+                        statusTxt.style.color = "#ff4444";
+                        resultBox.style.borderColor = "#ff4444";
+                        infoData.innerHTML = "<p>Esta empresa não foi localizada na base atual.</p>";
+                    }
                 }
-            } catch (error) {
-                alert("Erro ao carregar base de dados. Verifique se o arquivo dados.json existe.");
-            }
+            });
         }
     </script>
 </body>
