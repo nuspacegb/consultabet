@@ -11,11 +11,10 @@
         .container { width: 100%; max-width: 450px; text-align: center; background: var(--card-bg); padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
         h1 { font-size: 1.8rem; margin-bottom: 30px; background: linear-gradient(to right, #fff, var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #2d2d35; background: #1c1c24; color: white; margin-bottom: 20px; box-sizing: border-box; font-size: 1rem; }
-        button { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--primary-purple); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        button { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--primary-purple); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         button:hover { background: var(--neon-purple); box-shadow: 0 0 20px var(--neon-purple); transform: translateY(-2px); }
-        .result { margin-top: 30px; padding: 20px; border-radius: 12px; display: none; text-align: left; background: rgba(255, 255, 255, 0.05); border-left: 4px solid var(--success); animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        footer { margin-top: 40px; font-size: 0.8rem; color: #666; text-align: center; line-height: 1.5; }
+        .result { margin-top: 30px; padding: 20px; border-radius: 12px; display: none; text-align: left; background: rgba(255, 255, 255, 0.05); border-left: 4px solid var(--success); }
+        footer { margin-top: 40px; font-size: 0.8rem; color: #666; text-align: center; }
     </style>
 </head>
 <body>
@@ -23,7 +22,7 @@
     <div class="container">
         <h1>ConsultaBet - Nu</h1>
         <input type="text" id="searchInput" placeholder="CNPJ, Marca ou Razão Social">
-        <button onclick="buscar()">Verificar Autorização</button>
+        <button onclick="buscar()">Verificar Agora</button>
 
         <div id="resultBox" class="result">
             <span id="statusTxt" style="font-weight: bold; display: block; margin-bottom: 12px; font-size: 1.1rem;"></span>
@@ -32,8 +31,7 @@
     </div>
 
     <footer>
-        Elaborado por <strong>Alexandre Gabbia</strong><br>
-        Base de Dados: bets.csv (Oficial SPA/MF)
+        Elaborado por <strong>Alexandre Gabbia</strong>
     </footer>
 
     <script>
@@ -47,39 +45,14 @@
             if (!termo) return;
 
             try {
-                const response = await fetch('bets.csv');
-                const arrayBuffer = await response.arrayBuffer();
-                const decoder = new TextDecoder('iso-8859-1'); 
-                const text = decoder.decode(arrayBuffer);
-                
-                const linhas = text.split(/\r?\n/);
-                let encontrado = null;
+                const response = await fetch('dados.json');
+                const empresas = await response.json();
 
-                for (let i = 0; i < linhas.length; i++) {
-                    const linhaBruta = linhas[i];
-                    if (!linhaBruta.includes(';')) continue;
-
-                    // Divide a linha removendo as aspas do Excel
-                    const colunas = linhaBruta.split(';').map(c => c.replace(/"/g, '').trim());
-                    
-                    // Filtra apenas colunas que tenham conteúdo para não pegar as vazias do início
-                    const dadosReais = colunas.filter(c => c.length > 0);
-
-                    if (dadosReais.length >= 2) {
-                        // O CNPJ em bets.csv está em dadosReais[0]
-                        const cnpj = dadosReais[0];
-                        const razao = dadosReais[1] || "";
-                        const marca = dadosReais[2] || "";
-
-                        const cnpjLimpo = cnpj.replace(/\D/g, '');
-                        const textoBuscaLinha = (cnpj + razao + marca).toLowerCase();
-
-                        if ((cleanInput !== "" && cnpjLimpo.includes(cleanInput)) || textoBuscaLinha.includes(termo)) {
-                            encontrado = { cnpj, razao, marca };
-                            break;
-                        }
-                    }
-                }
+                const encontrado = empresas.find(e => {
+                    const cnpjLimpo = e.cnpj.replace(/\D/g, '');
+                    const buscaTexto = (e.cnpj + e.razao + e.marca).toLowerCase();
+                    return (cleanInput !== "" && cnpjLimpo.includes(cleanInput)) || buscaTexto.includes(termo);
+                });
 
                 resultBox.style.display = 'block';
 
@@ -96,11 +69,10 @@
                     statusTxt.innerText = "❌ NÃO ENCONTRADA";
                     statusTxt.style.color = "#ff4444";
                     resultBox.style.borderColor = "#ff4444";
-                    infoData.innerHTML = `A marca ou CNPJ "<strong>${termo.toUpperCase()}</strong>" não consta na lista oficial de empresas autorizadas.`;
+                    infoData.innerHTML = "Não localizada na base oficial de 2026.";
                 }
-
             } catch (e) {
-                alert("Erro ao carregar o arquivo bets.csv.");
+                alert("Erro ao carregar dados.json");
             }
         }
     </script>
