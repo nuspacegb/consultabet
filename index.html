@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Consulta Casas de Apostas Regulamentadas</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; }
+        .resultado { border: 1px solid #ccc; padding: 15px; margin-top: 20px; border-radius: 8px; display: none; }
+        .footer { font-size: 0.8em; color: gray; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <h2>Consultar Autorização (SPA/MF)</h2>
+    <input type="text" id="busca" placeholder="Digite CNPJ, Nome Fantasia ou Razão Social">
+    <button onclick="buscar()">Verificar</button>
+
+    <div id="resultado" class="resultado"></div>
+    <div class="footer" id="data-att"></div>
+
+    <script>
+        async function buscar() {
+            const termo = document.getElementById('busca').value.replace(/\D/g, '').toLowerCase(); // Remove pontos/traços se for número
+            const termoOriginal = document.getElementById('busca').value.toLowerCase();
+            
+            const response = await fetch('dados.json');
+            const lista = await response.json();
+            
+            const encontrado = lista.find(item => 
+                item.cnpj.replace(/\D/g, '') === termo || 
+                item.nome_fantasia.toLowerCase().includes(termoOriginal) ||
+                item.razao_social.toLowerCase().includes(termoOriginal)
+            );
+
+            const div = document.getElementById('resultado');
+            const footer = document.getElementById('data-att');
+            div.style.display = 'block';
+
+            if (encontrado) {
+                div.innerHTML = `<strong>✅ REGULAMENTADA</strong><br>
+                                 <b>Razão Social:</b> ${encontrado.razao_social}<br>
+                                 <b>Nome Fantasia:</b> ${encontrado.nome_fantasia}<br>
+                                 <b>CNPJ:</b> ${encontrado.cnpj}`;
+                footer.innerHTML = `Última atualização da base: ${encontrado.atualizacao}`;
+            } else {
+                div.innerHTML = `<strong>❌ NÃO ENCONTRADA</strong><br>Esta empresa não consta na lista atual ou o dado foi digitado incorretamente.`;
+            }
+        }
+    </script>
+</body>
+</html>
