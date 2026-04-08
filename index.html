@@ -7,33 +7,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --bg-color: #0b0b0e; --card-bg: #16161d; --primary-purple: #8a05be; --neon-purple: #bc13fe; --text-color: #ffffff; --success: #00ff88; }
-        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        .container { width: 90%; max-width: 500px; text-align: center; background: var(--card-bg); padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); position: relative; }
-        h1 { font-size: 2rem; margin-bottom: 30px; background: linear-gradient(to right, #fff, var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #2d2d35; background: #1c1c24; color: white; margin-bottom: 20px; box-sizing: border-box; outline: none; }
-        input:focus { border-color: var(--neon-purple); }
-        button { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--primary-purple); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        button:hover { background: var(--neon-purple); box-shadow: 0 0 20px var(--neon-purple); }
-        .result { margin-top: 30px; padding: 20px; border-radius: 12px; display: none; text-align: left; background: rgba(255, 255, 255, 0.05); border-left: 4px solid var(--success); }
-        footer { margin-top: 40px; font-size: 0.8rem; color: #666; text-align: center; }
+        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .container { width: 100%; max-width: 450px; text-align: center; background: var(--card-bg); padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
+        h1 { font-size: 1.8rem; margin-bottom: 30px; background: linear-gradient(to right, #fff, var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #2d2d35; background: #1c1c24; color: white; margin-bottom: 20px; box-sizing: border-box; font-size: 1rem; }
+        button { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--primary-purple); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; }
+        button:hover { background: var(--neon-purple); box-shadow: 0 0 20px var(--neon-purple); transform: translateY(-2px); }
+        .result { margin-top: 30px; padding: 20px; border-radius: 12px; display: none; text-align: left; background: rgba(255, 255, 255, 0.05); border-left: 4px solid var(--success); animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        footer { margin-top: 40px; font-size: 0.8rem; color: #666; text-align: center; line-height: 1.5; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <h1>ConsultaBet - Nu</h1>
-        <input type="text" id="searchInput" placeholder="Digite CNPJ, Marca ou Razão...">
-        <button onclick="buscar()">Verificar Base Oficial</button>
+        <input type="text" id="searchInput" placeholder="CNPJ, Marca ou Razão Social">
+        <button onclick="buscar()">Verificar Autorização</button>
 
         <div id="resultBox" class="result">
-            <span id="statusTxt" style="font-weight: bold; display: block; margin-bottom: 10px;"></span>
-            <div id="infoData" style="line-height: 1.6; font-size: 0.95rem;"></div>
+            <span id="statusTxt" style="font-weight: bold; display: block; margin-bottom: 12px; font-size: 1.1rem;"></span>
+            <div id="infoData" style="line-height: 1.8; font-size: 0.95rem; color: #ccc;"></div>
         </div>
     </div>
 
     <footer>
         Elaborado por <strong>Alexandre Gabbia</strong><br>
-        Base Oficial SPA/MF - 2026
+        Base de Dados: bets.csv (Oficial SPA/MF)
     </footer>
 
     <script>
@@ -49,30 +49,35 @@
             try {
                 const response = await fetch('bets.csv');
                 const arrayBuffer = await response.arrayBuffer();
-                const decoder = new TextDecoder('iso-8859-1'); // Trata acentos do Excel
+                const decoder = new TextDecoder('iso-8859-1'); 
                 const text = decoder.decode(arrayBuffer);
                 
                 const linhas = text.split(/\r?\n/);
                 let encontrado = null;
 
-                for (let i = 1; i < linhas.length; i++) {
-                    // Divide pelo ponto e vírgula (padrão do seu arquivo)
-                    const colunas = linhas[i].split(';'); 
+                for (let i = 0; i < linhas.length; i++) {
+                    const linhaBruta = linhas[i];
+                    if (!linhaBruta.includes(';')) continue;
+
+                    // Divide a linha removendo as aspas do Excel
+                    const colunas = linhaBruta.split(';').map(c => c.replace(/"/g, '').trim());
                     
-                    // No seu arquivo bets.csv, as colunas reais começam no índice 2 e 3
-                    // Índice 2: CNPJ | Índice 3: INTERESSADO | Índice 4: MARCA
-                    if (colunas.length < 4) continue;
+                    // Filtra apenas colunas que tenham conteúdo para não pegar as vazias do início
+                    const dadosReais = colunas.filter(c => c.length > 0);
 
-                    const cnpj = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
-                    const razao = colunas[3] ? colunas[3].replace(/"/g, '').trim() : "";
-                    const marca = colunas[4] ? colunas[4].replace(/"/g, '').trim() : "";
+                    if (dadosReais.length >= 2) {
+                        // O CNPJ em bets.csv está em dadosReais[0]
+                        const cnpj = dadosReais[0];
+                        const razao = dadosReais[1] || "";
+                        const marca = dadosReais[2] || "";
 
-                    const cnpjLimpo = cnpj.replace(/\D/g, '');
-                    const textoParaBusca = (cnpj + razao + marca).toLowerCase();
+                        const cnpjLimpo = cnpj.replace(/\D/g, '');
+                        const textoBuscaLinha = (cnpj + razao + marca).toLowerCase();
 
-                    if ((cleanInput !== "" && cnpjLimpo.includes(cleanInput)) || textoParaBusca.includes(termo)) {
-                        encontrado = { cnpj, razao, marca };
-                        break;
+                        if ((cleanInput !== "" && cnpjLimpo.includes(cleanInput)) || textoBuscaLinha.includes(termo)) {
+                            encontrado = { cnpj, razao, marca };
+                            break;
+                        }
                     }
                 }
 
@@ -83,20 +88,19 @@
                     statusTxt.style.color = "var(--success)";
                     resultBox.style.borderColor = "var(--success)";
                     infoData.innerHTML = `
-                        <b>Marca(s):</b> ${encontrado.marca}<br>
-                        <b>Razão Social:</b> ${encontrado.razao}<br>
-                        <b>CNPJ:</b> ${encontrado.cnpj}
+                        <strong>Marca(s):</strong> ${encontrado.marca}<br>
+                        <strong>Razão Social:</strong> ${encontrado.razao}<br>
+                        <strong>CNPJ:</strong> ${encontrado.cnpj}
                     `;
                 } else {
                     statusTxt.innerText = "❌ NÃO ENCONTRADA";
                     statusTxt.style.color = "#ff4444";
                     resultBox.style.borderColor = "#ff4444";
-                    infoData.innerHTML = "Esta empresa não foi localizada na lista oficial até o momento.";
+                    infoData.innerHTML = `A marca ou CNPJ "<strong>${termo.toUpperCase()}</strong>" não consta na lista oficial de empresas autorizadas.`;
                 }
 
             } catch (e) {
-                console.error(e);
-                alert("Erro ao carregar a base de dados.");
+                alert("Erro ao carregar o arquivo bets.csv.");
             }
         }
     </script>
