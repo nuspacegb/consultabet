@@ -2,79 +2,89 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ConsultaBet - Nu</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-color: #0b0b0e; --card-bg: #16161d; --primary-purple: #8a05be; --neon-purple: #bc13fe; --text-color: #ffffff; --success: #00ff88; }
-        body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .container { width: 100%; max-width: 450px; text-align: center; background: var(--card-bg); padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
-        h1 { font-size: 1.8rem; margin-bottom: 30px; background: linear-gradient(to right, #fff, var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #2d2d35; background: #1c1c24; color: white; margin-bottom: 20px; box-sizing: border-box; font-size: 1rem; }
-        button { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--primary-purple); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        button:hover { background: var(--neon-purple); box-shadow: 0 0 20px var(--neon-purple); transform: translateY(-2px); }
-        .result { margin-top: 30px; padding: 20px; border-radius: 12px; display: none; text-align: left; background: rgba(255, 255, 255, 0.05); border-left: 4px solid var(--success); }
-        footer { margin-top: 40px; font-size: 0.8rem; color: #666; text-align: center; }
+        :root { --bg: #0b0b0e; --card: #16161d; --purple: #8a05be; --neon: #bc13fe; --green: #00ff88; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .box { width: 100%; max-width: 450px; background: var(--card); padding: 40px; border-radius: 24px; text-align: center; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        h1 { background: linear-gradient(to right, #fff, var(--neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 30px; font-size: 1.8rem; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #2d2d35; background: #1c1c24; color: white; margin-bottom: 20px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--neon); }
+        button { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--purple); color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        button:hover { background: var(--neon); box-shadow: 0 0 20px var(--neon); transform: translateY(-2px); }
+        .res { margin-top: 30px; padding: 20px; border-radius: 12px; display: none; text-align: left; background: rgba(255, 255, 255, 0.05); border-left: 4px solid var(--green); line-height: 1.6; }
+        footer { margin-top: 30px; font-size: 0.7rem; color: #555; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>ConsultaBet - Nu</h1>
-        <input type="text" id="searchInput" placeholder="CNPJ, Marca ou Razão Social">
-        <button onclick="buscar()">Verificar Agora</button>
+<div class="box">
+    <h1>ConsultaBet - Nu</h1>
+    <input type="text" id="term" placeholder="CNPJ, Marca ou Empresa...">
+    <button onclick="check()">Verificar Agora</button>
+    <div id="out" class="res"></div>
+    <footer>Elaborado por <strong>Alexandre Gabbia</strong></footer>
+</div>
 
-        <div id="resultBox" class="result">
-            <span id="statusTxt" style="font-weight: bold; display: block; margin-bottom: 12px; font-size: 1.1rem;"></span>
-            <div id="infoData" style="line-height: 1.8; font-size: 0.95rem; color: #ccc;"></div>
-        </div>
-    </div>
+<script>
+async function check() {
+    const term = document.getElementById('term').value.toLowerCase().trim();
+    const cleanTerm = term.replace(/\D/g, '');
+    const out = document.getElementById('out');
 
-    <footer>
-        Elaborado por <strong>Alexandre Gabbia</strong>
-    </footer>
+    if (!term) return;
 
-    <script>
-        async function buscar() {
-            const termo = document.getElementById('searchInput').value.toLowerCase().trim();
-            const cleanInput = termo.replace(/\D/g, '');
-            const resultBox = document.getElementById('resultBox');
-            const infoData = document.getElementById('infoData');
-            const statusTxt = document.getElementById('statusTxt');
+    try {
+        const resp = await fetch('bets.csv');
+        const buffer = await resp.arrayBuffer();
+        const text = new TextDecoder('iso-8859-1').decode(buffer);
+        const rows = text.split(/\r?\n/);
 
-            if (!termo) return;
+        let lastFoundCnpj = "";
+        let result = null;
 
-            try {
-                const response = await fetch('dados.json');
-                const empresas = await response.json();
+        for (let i = 0; i < rows.length; i++) {
+            let line = rows[i].replace(/"/g, '');
+            let cols = line.split(/[;,]/).map(c => c.trim());
 
-                const encontrado = empresas.find(e => {
-                    const cnpjLimpo = e.cnpj.replace(/\D/g, '');
-                    const buscaTexto = (e.cnpj + e.razao + e.marca).toLowerCase();
-                    return (cleanInput !== "" && cnpjLimpo.includes(cleanInput)) || buscaTexto.includes(termo);
-                });
+            // No seu CSV, o CNPJ está na coluna 2 (índice 2)
+            // Se a coluna do CNPJ tiver valor, atualizamos o "último CNPJ conhecido"
+            if (cols[2] && cols[2].length > 5) {
+                lastFoundCnpj = cols[2];
+            }
 
-                resultBox.style.display = 'block';
+            // Texto completo da linha para busca (Interessado + Marca)
+            let rowContent = (cols[3] || "") + " " + (cols[4] || "");
+            let rowContentLower = rowContent.toLowerCase();
 
-                if (encontrado) {
-                    statusTxt.innerText = "✅ REGULAMENTADA";
-                    statusTxt.style.color = "var(--success)";
-                    resultBox.style.borderColor = "var(--success)";
-                    infoData.innerHTML = `
-                        <strong>Marca(s):</strong> ${encontrado.marca}<br>
-                        <strong>Razão Social:</strong> ${encontrado.razao}<br>
-                        <strong>CNPJ:</strong> ${encontrado.cnpj}
-                    `;
-                } else {
-                    statusTxt.innerText = "❌ NÃO ENCONTRADA";
-                    statusTxt.style.color = "#ff4444";
-                    resultBox.style.borderColor = "#ff4444";
-                    infoData.innerHTML = "Não localizada na base oficial de 2026.";
-                }
-            } catch (e) {
-                alert("Erro ao carregar dados.json");
+            // Se o que o usuário digitou está nesta linha (ou é o CNPJ)
+            if (rowContentLower.includes(term) || (cleanTerm !== "" && lastFoundCnpj.replace(/\D/g, '').includes(cleanTerm))) {
+                result = {
+                    cnpj: lastFoundCnpj,
+                    razao: cols[3] || "Não informada",
+                    marca: cols[4] || "Não informada"
+                };
+                if (rowContentLower.includes(term)) break; // Prioriza achar a marca exata
             }
         }
-    </script>
+
+        out.style.display = 'block';
+        if (result && result.marca !== "Não informada") {
+            out.style.borderColor = "var(--green)";
+            out.innerHTML = `<b style="color:var(--green); font-size: 1.1rem;">✅ REGULAMENTADA</b><br><br>
+                             <strong>Marca:</strong> ${result.marca}<br>
+                             <strong>Interessado:</strong> ${result.razao}<br>
+                             <strong>CNPJ:</strong> ${result.cnpj}`;
+        } else {
+            out.style.borderColor = "#ff4444";
+            out.innerHTML = `<b style="color:#ff4444">❌ NÃO ENCONTRADA</b><br><br>Empresa ou marca não localizada na lista oficial de autorizadas.`;
+        }
+    } catch (e) { 
+        console.error(e);
+        alert("Erro ao ler o arquivo bets.csv no GitHub."); 
+    }
+}
+</script>
 </body>
 </html>
