@@ -2,48 +2,206 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Consulta Casas de Apostas Regulamentadas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConsultaBet - Nu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
-        input { width: 100%; padding: 10px; margin-bottom: 10px; }
-        .resultado { border: 1px solid #ccc; padding: 15px; margin-top: 20px; border-radius: 8px; display: none; }
-        .footer { font-size: 0.8em; color: gray; margin-top: 30px; }
+        :root {
+            --bg-color: #0b0b0e;
+            --card-bg: #16161d;
+            --primary-purple: #8a05be; /* Roxo Nu */
+            --neon-purple: #bc13fe;
+            --text-color: #ffffff;
+            --success: #00ff88;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Efeito de brilho de fundo */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 300px; height: 300px;
+            background: var(--primary-purple);
+            filter: blur(150px);
+            opacity: 0.2;
+            z-index: -1;
+            top: 10%;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(138, 5, 190, 0.1);
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, #fff, var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 2px solid #2d2d35;
+            background: #1c1c24;
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--neon-purple);
+            box-shadow: 0 0 15px rgba(188, 19, 254, 0.4);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            background: var(--primary-purple);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: var(--neon-purple);
+            box-shadow: 0 0 20px var(--neon-purple);
+            transform: translateY(-2px);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+            text-align: left;
+            border-left: 4px solid var(--success);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-badge {
+            color: var(--success);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .last-update {
+            margin-top: 10px;
+            display: block;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
-    <h2>Consultar Autorização (SPA/MF)</h2>
-    <input type="text" id="busca" placeholder="Digite CNPJ, Nome Fantasia ou Razão Social">
-    <button onclick="buscar()">Verificar</button>
 
-    <div id="resultado" class="resultado"></div>
-    <div class="footer" id="data-att"></div>
+    <div class="container">
+        <h1>ConsultaBet - Nu</h1>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="CNPJ, Nome ou Razão Social...">
+        </div>
+        
+        <button onclick="buscar()">Verificar Base Gov</button>
+
+        <div id="resultBox" class="result">
+            <span class="status-badge" id="statusTxt">✅ REGULAMENTADA</span>
+            <div id="infoData"></div>
+        </div>
+    </div>
+
+    <footer>
+        Elaborado por <strong>Alexandre Gabbia</strong>
+        <span class="last-update" id="updateDate"></span>
+    </footer>
 
     <script>
         async function buscar() {
-            const termo = document.getElementById('busca').value.replace(/\D/g, '').toLowerCase(); // Remove pontos/traços se for número
-            const termoOriginal = document.getElementById('busca').value.toLowerCase();
+            const input = document.getElementById('searchInput').value.toLowerCase().trim();
+            const cleanInput = input.replace(/\D/g, ''); // Apenas números para CNPJ
             
-            const response = await fetch('dados.json');
-            const lista = await response.json();
-            
-            const encontrado = lista.find(item => 
-                item.cnpj.replace(/\D/g, '') === termo || 
-                item.nome_fantasia.toLowerCase().includes(termoOriginal) ||
-                item.razao_social.toLowerCase().includes(termoOriginal)
-            );
+            const resultBox = document.getElementById('resultBox');
+            const infoData = document.getElementById('infoData');
+            const updateDate = document.getElementById('updateDate');
 
-            const div = document.getElementById('resultado');
-            const footer = document.getElementById('data-att');
-            div.style.display = 'block';
+            try {
+                const response = await fetch('dados.json');
+                const empresas = await response.json();
 
-            if (encontrado) {
-                div.innerHTML = `<strong>✅ REGULAMENTADA</strong><br>
-                                 <b>Razão Social:</b> ${encontrado.razao_social}<br>
-                                 <b>Nome Fantasia:</b> ${encontrado.nome_fantasia}<br>
-                                 <b>CNPJ:</b> ${encontrado.cnpj}`;
-                footer.innerHTML = `Última atualização da base: ${encontrado.atualizacao}`;
-            } else {
-                div.innerHTML = `<strong>❌ NÃO ENCONTRADA</strong><br>Esta empresa não consta na lista atual ou o dado foi digitado incorretamente.`;
+                // Busca por CNPJ limpo ou por texto no Nome/Razão Social
+                const empresa = empresas.find(e => 
+                    e.cnpj.replace(/\D/g, '') === cleanInput || 
+                    e.nome_fantasia.toLowerCase().includes(input) ||
+                    e.razao_social.toLowerCase().includes(input)
+                );
+
+                resultBox.style.display = 'block';
+
+                if (empresa) {
+                    resultBox.style.borderColor = 'var(--success)';
+                    document.getElementById('statusTxt').innerText = "✅ REGULAMENTADA";
+                    document.getElementById('statusTxt').style.color = "var(--success)";
+                    infoData.innerHTML = `
+                        <p><strong>Nome:</strong> ${empresa.nome_fantasia}</p>
+                        <p><strong>Razão Social:</strong> ${empresa.razao_social}</p>
+                        <p><strong>CNPJ:</strong> ${empresa.cnpj}</p>
+                    `;
+                    updateDate.innerText = `Base atualizada em: ${empresa.data_att || 'Não informada'}`;
+                } else {
+                    resultBox.style.borderColor = '#ff4444';
+                    document.getElementById('statusTxt').innerText = "❌ NÃO ENCONTRADA";
+                    document.getElementById('statusTxt').style.color = "#ff4444";
+                    infoData.innerHTML = `<p>Esta empresa não foi localizada na lista oficial da SPA/MF até o momento.</p>`;
+                }
+            } catch (error) {
+                alert("Erro ao carregar base de dados. Verifique se o arquivo dados.json existe.");
             }
         }
     </script>
