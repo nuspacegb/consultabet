@@ -8,9 +8,10 @@
     <style>
         :root { --bg-color: #0b0b0e; --card-bg: #16161d; --primary-purple: #8a05be; --neon-purple: #bc13fe; --text-color: #ffffff; --success: #00ff88; }
         body { background-color: var(--bg-color); color: var(--text-color); font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        .container { width: 90%; max-width: 500px; text-align: center; background: var(--card-bg); padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
+        .container { width: 90%; max-width: 500px; text-align: center; background: var(--card-bg); padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); position: relative; }
         h1 { font-size: 2rem; margin-bottom: 30px; background: linear-gradient(to right, #fff, var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #2d2d35; background: #1c1c24; color: white; margin-bottom: 20px; box-sizing: border-box; }
+        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #2d2d35; background: #1c1c24; color: white; margin-bottom: 20px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--neon-purple); }
         button { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--primary-purple); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
         button:hover { background: var(--neon-purple); box-shadow: 0 0 20px var(--neon-purple); }
         .result { margin-top: 30px; padding: 20px; border-radius: 12px; display: none; text-align: left; background: rgba(255, 255, 255, 0.05); border-left: 4px solid var(--success); }
@@ -21,52 +22,55 @@
 
     <div class="container">
         <h1>ConsultaBet - Nu</h1>
-        <input type="text" id="searchInput" placeholder="CNPJ, Marca ou Razão Social...">
+        <input type="text" id="searchInput" placeholder="Digite CNPJ, Marca ou Razão...">
         <button onclick="buscar()">Verificar Base Oficial</button>
 
         <div id="resultBox" class="result">
             <span id="statusTxt" style="font-weight: bold; display: block; margin-bottom: 10px;"></span>
-            <div id="infoData" style="line-height: 1.6;"></div>
+            <div id="infoData" style="line-height: 1.6; font-size: 0.95rem;"></div>
         </div>
     </div>
 
     <footer>
         Elaborado por <strong>Alexandre Gabbia</strong><br>
-        Base: Planilha Oficial SPA/MF 2026
+        Base Oficial SPA/MF - 2026
     </footer>
 
     <script>
         async function buscar() {
-            const input = document.getElementById('searchInput').value.toLowerCase().trim();
-            const cleanInput = input.replace(/\D/g, '');
+            const termo = document.getElementById('searchInput').value.toLowerCase().trim();
+            const cleanInput = termo.replace(/\D/g, '');
             const resultBox = document.getElementById('resultBox');
             const infoData = document.getElementById('infoData');
             const statusTxt = document.getElementById('statusTxt');
 
+            if (!termo) return;
+
             try {
-                // Lendo o arquivo diretamente como texto para evitar erros de biblioteca
                 const response = await fetch('bets.csv');
-                const text = await response.text();
+                const arrayBuffer = await response.arrayBuffer();
+                const decoder = new TextDecoder('iso-8859-1'); // Trata acentos do Excel
+                const text = decoder.decode(arrayBuffer);
                 
-                // Divide por linhas e remove aspas extras que o Excel coloca
-                const linhas = text.split(/\r?\n/).map(l => l.replace(/"/g, ''));
-                
+                const linhas = text.split(/\r?\n/);
                 let encontrado = null;
 
-                // Começa do 1 para pular o cabeçalho
                 for (let i = 1; i < linhas.length; i++) {
-                    const colunas = linhas[i].split(/[;,]/); // Aceita tanto vírgula quanto ponto e vírgula
+                    // Divide pelo ponto e vírgula (padrão do seu arquivo)
+                    const colunas = linhas[i].split(';'); 
                     
-                    if (colunas.length < 2) continue;
+                    // No seu arquivo bets.csv, as colunas reais começam no índice 2 e 3
+                    // Índice 2: CNPJ | Índice 3: INTERESSADO | Índice 4: MARCA
+                    if (colunas.length < 4) continue;
 
-                    const cnpj = colunas[0].trim();
-                    const razao = colunas[1].trim();
-                    const marca = colunas[2] ? colunas[2].trim() : "";
+                    const cnpj = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
+                    const razao = colunas[3] ? colunas[3].replace(/"/g, '').trim() : "";
+                    const marca = colunas[4] ? colunas[4].replace(/"/g, '').trim() : "";
 
                     const cnpjLimpo = cnpj.replace(/\D/g, '');
-                    const textoLinha = (cnpj + razao + marca).toLowerCase();
+                    const textoParaBusca = (cnpj + razao + marca).toLowerCase();
 
-                    if ((cleanInput !== "" && cnpjLimpo.includes(cleanInput)) || textoLinha.includes(input)) {
+                    if ((cleanInput !== "" && cnpjLimpo.includes(cleanInput)) || textoParaBusca.includes(termo)) {
                         encontrado = { cnpj, razao, marca };
                         break;
                     }
@@ -87,11 +91,12 @@
                     statusTxt.innerText = "❌ NÃO ENCONTRADA";
                     statusTxt.style.color = "#ff4444";
                     resultBox.style.borderColor = "#ff4444";
-                    infoData.innerHTML = "Empresa não localizada na lista atual do Governo Federal.";
+                    infoData.innerHTML = "Esta empresa não foi localizada na lista oficial até o momento.";
                 }
 
             } catch (e) {
-                alert("Erro ao ler arquivo bets.csv. Certifique-se que ele está no GitHub.");
+                console.error(e);
+                alert("Erro ao carregar a base de dados.");
             }
         }
     </script>
