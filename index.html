@@ -2,89 +2,156 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>ConsultaBet - Nu</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nu - Consulta Bet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #0b0b0e; --card: #16161d; --purple: #8a05be; --neon: #bc13fe; --green: #00ff88; }
-        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .box { width: 100%; max-width: 450px; background: var(--card); padding: 40px; border-radius: 24px; text-align: center; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        h1 { background: linear-gradient(to right, #fff, var(--neon)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 30px; font-size: 1.8rem; }
-        input { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #2d2d35; background: #1c1c24; color: white; margin-bottom: 20px; box-sizing: border-box; outline: none; }
-        input:focus { border-color: var(--neon); }
-        button { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--purple); color: white; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
-        button:hover { background: var(--neon); box-shadow: 0 0 20px var(--neon); transform: translateY(-2px); }
-        .res { margin-top: 30px; padding: 20px; border-radius: 12px; display: none; text-align: left; background: rgba(255, 255, 255, 0.05); border-left: 4px solid var(--green); line-height: 1.6; }
-        footer { margin-top: 30px; font-size: 0.7rem; color: #555; }
+        body {
+            background-color: #0d0d12;
+            color: #f3f4f6;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .neon-purple {
+            color: #bc13fe;
+            text-shadow: 0 0 10px #bc13fe, 0 0 20px #bc13fe;
+        }
+        .neon-border-input {
+            border: 1px solid #bc13fe;
+            box-shadow: 0 0 15px rgba(188, 19, 254, 0.5);
+        }
+        .glass-card {
+            background: rgba(18, 18, 24, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(188, 19, 254, 0.2);
+        }
+        /* Estilo do Modal/Pop-up */
+        #slackModal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col items-center p-6 pt-12">
 
-<div class="box">
-    <h1>ConsultaBet - Nu</h1>
-    <input type="text" id="term" placeholder="CNPJ, Marca ou Empresa...">
-    <button onclick="check()">Verificar Agora</button>
-    <div id="out" class="res"></div>
-    <footer>Elaborado por <strong>Alexandre Gabbia</strong></footer>
-</div>
+    <!-- Header -->
+    <header class="text-center mb-10">
+        <h1 class="text-6xl font-bold neon-purple uppercase italic tracking-tighter">Nu - Consulta Bet</h1>
+        <p class="text-gray-400 mt-2 text-lg">Verifique se uma plataforma de apostas está autorizada pelo Governo Federal.</p>
+        <div class="inline-block mt-4 px-4 py-1 bg-purple-900/30 border border-purple-500/50 rounded-full text-purple-400 text-sm font-bold">
+            DATA DE REFERÊNCIA: 02/04/2026
+        </div>
+    </header>
 
-<script>
-async function check() {
-    const term = document.getElementById('term').value.toLowerCase().trim();
-    const cleanTerm = term.replace(/\D/g, '');
-    const out = document.getElementById('out');
+    <!-- Barra de Pesquisa -->
+    <div class="w-full max-w-2xl">
+        <div class="glass-card p-2 rounded-2xl flex items-center neon-border-input">
+            <input type="text" id="searchInput" 
+                   placeholder="Digite a marca (ex: Bet365) ou CNPJ..." 
+                   class="w-full bg-transparent p-5 outline-none text-white text-xl placeholder-gray-700"
+                   onkeypress="if(event.key === 'Enter') buscar()">
+            <button onclick="buscar()" 
+                    class="bg-purple-600 hover:bg-purple-500 text-white px-8 py-5 rounded-xl font-bold transition-all uppercase">
+                PESQUISAR
+            </button>
+        </div>
+    </div>
 
-    if (!term) return;
+    <!-- Resultados -->
+    <div id="resultArea" class="w-full max-w-2xl mt-10"></div>
 
-    try {
-        const resp = await fetch('bets.csv');
-        const buffer = await resp.arrayBuffer();
-        const text = new TextDecoder('iso-8859-1').decode(buffer);
-        const rows = text.split(/\r?\n/);
+    <!-- Rodapé -->
+    <footer class="mt-auto py-10 text-gray-600 text-sm italic text-center">
+        Elaborado por Alexandre Gabbia
+    </footer>
 
-        let lastFoundCnpj = "";
-        let result = null;
+    <!-- Botão de Dúvidas -->
+    <button onclick="abrirModal()" class="fixed bottom-6 right-6 bg-purple-600 hover:bg-purple-500 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl transition-all hover:scale-110">
+        ?
+    </button>
 
-        for (let i = 0; i < rows.length; i++) {
-            let line = rows[i].replace(/"/g, '');
-            let cols = line.split(/[;,]/).map(c => c.trim());
+    <!-- Modal Slack -->
+    <div id="slackModal" onclick="fecharModal()">
+        <div class="glass-card p-8 rounded-3xl max-w-sm w-full text-center neon-border-input" onclick="event.stopPropagation()">
+            <h3 class="text-2xl font-bold mb-4 text-purple-400">Dúvidas?</h3>
+            <p class="text-gray-300 text-lg mb-6">Mande um slack para <br><span class="text-white font-bold text-xl">@alexandregabbia</span></p>
+            <button onclick="fecharModal()" class="bg-purple-600 px-6 py-2 rounded-lg font-bold">Fechar</button>
+        </div>
+    </div>
 
-            // No seu CSV, o CNPJ está na coluna 2 (índice 2)
-            // Se a coluna do CNPJ tiver valor, atualizamos o "último CNPJ conhecido"
-            if (cols[2] && cols[2].length > 5) {
-                lastFoundCnpj = cols[2];
+    <script>
+        let baseDados = [];
+
+        // Carregar JSON
+        fetch('dados.json')
+            .then(res => res.json())
+            .then(data => baseDados = data);
+
+        function normalize(txt) {
+            return txt.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w]/g, '');
+        }
+
+        function buscar() {
+            const query = document.getElementById('searchInput').value;
+            const queryLimpa = normalize(query);
+            const container = document.getElementById('resultArea');
+
+            if (queryLimpa.length < 2) {
+                container.innerHTML = "";
+                return;
             }
 
-            // Texto completo da linha para busca (Interessado + Marca)
-            let rowContent = (cols[3] || "") + " " + (cols[4] || "");
-            let rowContentLower = rowContent.toLowerCase();
+            // BUSCA PRECISA: 
+            // 1. Verifica se o CNPJ é igual
+            // 2. Verifica se ALGUMA das marcas (separadas por vírgula) é igual ao que foi digitado
+            const resultado = baseDados.find(item => {
+                const marcasArray = item.marcas.split(',').map(m => normalize(m.trim()));
+                const cnpjLimpo = normalize(item.cnpj);
+                const razaoLimpa = normalize(item.razao_social);
 
-            // Se o que o usuário digitou está nesta linha (ou é o CNPJ)
-            if (rowContentLower.includes(term) || (cleanTerm !== "" && lastFoundCnpj.replace(/\D/g, '').includes(cleanTerm))) {
-                result = {
-                    cnpj: lastFoundCnpj,
-                    razao: cols[3] || "Não informada",
-                    marca: cols[4] || "Não informada"
-                };
-                if (rowContentLower.includes(term)) break; // Prioriza achar a marca exata
+                return marcasArray.includes(queryLimpa) || 
+                       cnpjLimpo === queryLimpa || 
+                       razaoLimpa.includes(queryLimpa);
+            });
+
+            if (resultado) {
+                container.innerHTML = `
+                    <div class="glass-card p-8 rounded-3xl border-l-8 border-green-500 animate-in fade-in duration-500">
+                        <span class="bg-green-500 text-black px-3 py-1 rounded-md text-xs font-bold uppercase">Regulamentada</span>
+                        <h2 class="text-4xl font-bold mt-4 text-white uppercase">${resultado.razao_social}</h2>
+                        <p class="text-gray-500 text-xl mb-6">CNPJ: ${resultado.cnpj}</p>
+                        
+                        <div class="border-t border-gray-800 pt-6">
+                            <p class="text-purple-400 font-bold uppercase text-sm tracking-widest mb-1">Portaria de Autorização:</p>
+                            <p class="text-white text-2xl font-bold">${resultado.portaria}</p>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <p class="text-gray-600 text-sm italic">Marcas: ${resultado.marcas}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="glass-card p-8 rounded-3xl border-l-8 border-red-600 text-center">
+                        <h2 class="text-2xl font-bold text-red-500 mb-2 font-bold">NÃO LOCALIZADA</h2>
+                        <p class="text-gray-400 italic">Essa plataforma não consta como regulamentada para a data de referência.</p>
+                    </div>
+                `;
             }
         }
 
-        out.style.display = 'block';
-        if (result && result.marca !== "Não informada") {
-            out.style.borderColor = "var(--green)";
-            out.innerHTML = `<b style="color:var(--green); font-size: 1.1rem;">✅ REGULAMENTADA</b><br><br>
-                             <strong>Marca:</strong> ${result.marca}<br>
-                             <strong>Interessado:</strong> ${result.razao}<br>
-                             <strong>CNPJ:</strong> ${result.cnpj}`;
-        } else {
-            out.style.borderColor = "#ff4444";
-            out.innerHTML = `<b style="color:#ff4444">❌ NÃO ENCONTRADA</b><br><br>Empresa ou marca não localizada na lista oficial de autorizadas.`;
-        }
-    } catch (e) { 
-        console.error(e);
-        alert("Erro ao ler o arquivo bets.csv no GitHub."); 
-    }
-}
-</script>
+        // Funções do Modal
+        function abrirModal() { document.getElementById('slackModal').style.display = 'flex'; }
+        function fecharModal() { document.getElementById('slackModal').style.display = 'none'; }
+    </script>
 </body>
 </html>
