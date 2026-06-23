@@ -1,0 +1,48 @@
+name: Atualizacao Automatica Consulta Bet
+
+on:
+  schedule:
+    # Executa toda segunda-feira às 08:00 Horário de Brasília (11:00 UTC)
+    - cron: '0 11 * * 1'
+  workflow_dispatch: # Adiciona um botão para você poder executar manualmente pelo painel do GitHub
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Clonar o codigo
+      uses: actions/checkout@v4
+
+    - name: Iniciar Ambiente Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Instalar Dependencias
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests beautifulsoup4 pdfplumber
+
+    - name: Executar Script de Atualizacao
+      run: python atualizar_base.py
+
+    - name: Corrigir Data de Referencia no HTML
+      run: |
+        # Substitui dinamicamente a data de referência no index.html pela data de hoje
+        DATA_HOJE=$(date +'%d/%m/%Y')
+        sed -i "s/DATA DE REFERÊNCIA: [0-9]\{2\}\/[0-9]\{2\}\/[0-9]\{4\}/DATA DE REFERÊNCIA: $DATA_HOJE/g" index.html
+
+    - name: Salvar e Enviar Modificacoes ao Repositorio
+      run: |
+        git config --global user.name 'Robo de Atualizacao'
+        git config --global user.email 'actions@github.com'
+        git add dados.json index.html
+        if ! git diff --cached --quiet; then
+          git commit -m "Automação: Atualização da base de dados e index para $(date +'%d/%m/%Y')"
+          git push
+        else
+          echo "Nenhuma mudança detectada na planilha do governo nesta execução."
+        fi
