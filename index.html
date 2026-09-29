@@ -1,235 +1,1642 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <!-- Google Analytics (GA4) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-96MQMSSSWN"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-      gtag('config', 'G-96MQMSSSWN');
-    </script>
+<!-- ==========================================================================
+     O NOME DO PRODUTO APARECE EM 4 LUGARES NESTE ARQUIVO.
+     Se um dia mudar (a votação com os usuários, por exemplo), troque nestes:
+       1. a tag <title> logo abaixo
+       2. a meta og:title
+       3. a barra do topo, classe "marca"
+       4. o título de cada aba, na constante MODULOS
+     ========================================================================== -->
+<title>Nu · Consulta Bet</title>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nu - Consulta Bet</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background-color: #0d0d12;
-            color: #f3f4f6;
-            font-family: 'Rajdhani', sans-serif;
-        }
-        .neon-purple {
-            color: #bc13fe;
-            text-shadow: 0 0 10px #bc13fe, 0 0 20px #bc13fe;
-        }
-        .neon-border-input {
-            border: 1px solid #bc13fe;
-            box-shadow: 0 0 15px rgba(188, 19, 254, 0.5);
-        }
-        .glass-card {
-            background: rgba(18, 18, 24, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(188, 19, 254, 0.2);
-        }
-        #slackModal, #historicoModal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.85);
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
+<meta name="description" content="Consulte a situação de uma casa de apostas na lista oficial do Governo Federal e de uma Instituição de Pagamento na base do Banco Central.">
+<meta name="theme-color" content="#0A0A0F">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Nu · Consulta Bet">
+<meta property="og:description" content="Casas de apostas (SPA/MF) e Instituições de Pagamento (BCB). Consulte por marca ou CNPJ.">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230A0A0F'/><path d='M30 72V28h11l18 27V28h11v44H59L41 45v27z' fill='%23A855F7'/></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-96MQMSSSWN"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-96MQMSSSWN');
+</script>
+
+<style>
+/* ==========================================================================
+   NU · CONSULTA — folha de estilo
+   --------------------------------------------------------------------------
+   Rajdhani nos títulos (a identidade), Inter no texto corrido (legibilidade).
+   Para trocar qualquer cor, mexa só nas variáveis aqui de cima.
+   ========================================================================== */
+
+:root {
+  --bg:            #0A0A0F;
+  --bg-elev:       #101017;
+  --surface:       #14141C;
+  --surface-hover: #191922;
+
+  --line:          rgba(168, 85, 247, .14);
+  --line-strong:   rgba(168, 85, 247, .32);
+
+  --text:          #EEEEF4;
+  --text-muted:    #9C9CB0;
+  --text-dim:      #6E6E82;
+
+  --roxo:          #A855F7;
+  --roxo-neon:     #BC13FE;
+  --roxo-fundo:    rgba(168, 85, 247, .10);
+
+  --ok:            #34D399;
+  --ok-fundo:      rgba(52, 211, 153, .10);
+  --alerta:        #FBBF24;
+  --alerta-fundo:  rgba(251, 191, 36, .10);
+  --erro:          #F87171;
+  --erro-fundo:    rgba(248, 113, 113, .10);
+
+  --largura:       800px;
+  --raio:          14px;
+  --raio-sm:       8px;
+
+  --fonte-titulo:  'Rajdhani', system-ui, sans-serif;
+  --fonte-texto:   'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* --- cores que antes estavam soltas no meio do CSS --- */
+  --topo-fundo:    rgba(10, 10, 15, .8);
+  --modal-fundo:   rgba(5, 5, 9, .82);
+  --linha-tabela:  rgba(255, 255, 255, .04);
+  --sombra-flutua: 0 6px 20px rgba(0, 0, 0, .5);
+  --titulo-cor:    #F5EBFF;
+  --titulo-brilho: 0 0 24px rgba(188, 19, 254, .45);
+  --roxo-claro:    #B76BF8;
+  --etiqueta-cor:  #DCC7F5;
+  --texto-erro:    #FFD9D9;
+  --texto-alerta:  #FFE9BC;
+  --contraste:     #FFFFFF;
+  --brilho-topo:   rgba(168, 85, 247, .16);
+  --brilho-cursor: rgba(168, 85, 247, .22);
+}
+
+/* ==========================================================================
+   TEMA CLARO
+   --------------------------------------------------------------------------
+   O escuro continua sendo o padrão: é a identidade que as pessoas já
+   conhecem. Este bloco só entra quando alguém aperta o botão no topo, e a
+   escolha fica lembrada no navegador.
+
+   Os verdes, âmbares e vermelhos aqui NÃO são os mesmos do tema escuro.
+   Cor clara sobre fundo claro some — cada uma foi escurecida até ficar
+   legível. Num site que usa cor para dizer "não autorizada", isso não é
+   detalhe estético.
+   ========================================================================== */
+:root[data-tema="claro"] {
+  --bg:            #F6F4FA;
+  --bg-elev:       #FFFFFF;
+  --surface:       #FFFFFF;
+  --surface-hover: #F1ECF9;
+
+  --line:          rgba(109, 40, 158, .18);
+  --line-strong:   rgba(109, 40, 158, .40);
+
+  --text:          #1A1526;
+  --text-muted:    #56506B;
+  --text-dim:      #7E7795;
+
+  --roxo:          #6D289E;
+  --roxo-neon:     #8B1FD0;
+  --roxo-fundo:    rgba(109, 40, 158, .07);
+
+  --ok:            #046C4E;
+  --ok-fundo:      rgba(4, 108, 78, .09);
+  --alerta:        #8A5A00;
+  --alerta-fundo:  rgba(138, 90, 0, .10);
+  --erro:          #B3261E;
+  --erro-fundo:    rgba(179, 38, 30, .08);
+
+  --topo-fundo:    rgba(255, 255, 255, .85);
+  --modal-fundo:   rgba(26, 21, 38, .45);
+  --linha-tabela:  rgba(26, 21, 38, .07);
+  --sombra-flutua: 0 6px 20px rgba(60, 40, 90, .22);
+  --titulo-cor:    #2A1040;
+  --titulo-brilho: none;
+  --roxo-claro:    #8637BE;
+  --etiqueta-cor:  #5B2588;
+  --texto-erro:    #7A1710;
+  --texto-alerta:  #5C3C00;
+  --contraste:     #1A1526;
+  --brilho-topo:   rgba(168, 85, 247, .13);
+  --brilho-cursor: rgba(109, 40, 158, .11);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--fonte-texto);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 480px;
+  background: radial-gradient(ellipse 80% 100% at 50% -20%, var(--brilho-topo), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.conteudo { position: relative; z-index: 1; }
+
+/* --------------------------------------------------------------- BARRA TOPO */
+.barra-topo {
+  border-bottom: 1px solid var(--line);
+  background: var(--topo-fundo);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.barra-topo-interna {
+  max-width: var(--largura);
+  margin: 0 auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.marca {
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--fonte-titulo);
+  font-weight: 700; font-size: 15px;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text);
+}
+.marca-ponto {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--roxo-neon);
+  box-shadow: 0 0 8px var(--roxo-neon);
+  flex: none;
+}
+.link-fonte { font-size: 12.5px; color: var(--text-dim); text-decoration: none; white-space: nowrap; }
+.link-fonte b { color: var(--text-muted); font-weight: 500; }
+.link-fonte:hover b { color: var(--roxo); }
+
+/* ------------------------------------------------------------ BOTAO DO TEMA */
+.btn-tema {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex: none;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.btn-tema:hover { background: var(--surface-hover); color: var(--text); border-color: var(--line-strong); }
+.btn-tema svg { width: 16px; height: 16px; }
+.btn-tema .icone-claro { display: none; }
+:root[data-tema="claro"] .btn-tema .icone-claro  { display: block; }
+:root[data-tema="claro"] .btn-tema .icone-escuro { display: none; }
+
+.topo-direita { display: flex; align-items: center; gap: 12px; }
+
+/* ------------------------------------------------------------------ SELETOR */
+/* As duas consultas ficam logo acima do campo de busca, e não escondidas no
+   topo. Motivo prático: o erro mais fácil de cometer é procurar um banco na
+   base de apostas. Com o seletor colado na busca, a pergunta "em qual base
+   estou procurando?" é respondida antes de a pessoa digitar. */
+.seletor {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.seletor-item {
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--raio);
+  padding: 13px 16px;
+  cursor: pointer;
+  font-family: var(--fonte-texto);
+  transition: background .15s, border-color .15s;
+}
+.seletor-item:hover { background: var(--surface-hover); }
+
+/* Brilho que acompanha o cursor dentro do botão.
+   Diferente de um enfeite solto: ele acontece sobre um elemento clicável,
+   então reforça que ali dá para clicar. O JS só atualiza --mx e --my com a
+   posição do ponteiro; todo o resto é CSS. */
+.seletor-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+  background: radial-gradient(
+    170px circle at var(--mx, 50%) var(--my, 50%),
+    var(--brilho-cursor),
+    transparent 62%
+  );
+}
+.seletor-item:hover::after,
+.seletor-item:focus-visible::after { opacity: 1; }
+
+/* O texto fica acima do brilho */
+.seletor-titulo, .seletor-meta { position: relative; z-index: 1; }
+
+/* Filete roxo no topo do item ativo: marca a seleção sem gritar */
+.seletor-item::before {
+  content: "";
+  position: absolute; left: 0; right: 0; top: 0; height: 2px;
+  background: transparent;
+  transition: background .15s;
+}
+.seletor-item[aria-selected="true"] {
+  background: var(--surface);
+  border-color: var(--line-strong);
+}
+.seletor-item[aria-selected="true"]::before { background: var(--roxo); }
+
+.seletor-titulo {
+  display: block;
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  font-size: 14.5px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  transition: color .15s;
+}
+.seletor-item[aria-selected="true"] .seletor-titulo { color: var(--text); }
+
+.seletor-meta {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.seletor-meta b {
+  color: var(--roxo);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.seletor-item[aria-selected="true"] .seletor-meta { color: var(--text-muted); }
+
+.seletor-item:focus-visible {
+  outline: 2px solid var(--roxo);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------- HERO */
+main {
+  flex: 1; width: 100%;
+  max-width: var(--largura);
+  margin: 0 auto;
+  padding: 0 20px 64px;
+}
+
+.hero { text-align: center; padding: 48px 0 30px; }
+.hero h1 {
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 6.4vw, 3.1rem);
+  line-height: 1.05;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--titulo-cor);
+  text-shadow: var(--titulo-brilho);
+  text-wrap: balance;
+}
+.hero h1 .destaque { color: var(--roxo-neon); }
+.hero p {
+  margin: 14px auto 0;
+  max-width: 50ch;
+  color: var(--text-muted);
+  font-size: clamp(.95rem, 2.4vw, 1.05rem);
+  text-wrap: balance;
+}
+
+/* -------------------------------------------------------------------- BUSCA */
+.caixa-busca {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--raio);
+  padding: 6px 6px 6px 16px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.caixa-busca:focus-within {
+  border-color: var(--roxo);
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, .13);
+}
+.icone-lupa { flex: none; color: var(--text-dim); display: flex; }
+
+#campoBusca {
+  flex: 1; min-width: 0;
+  background: none; border: 0; outline: none;
+  color: var(--text);
+  font-family: var(--fonte-texto);
+  font-size: 16px;            /* 16px evita o zoom automático do iOS */
+  padding: 13px 4px;
+}
+#campoBusca::placeholder { color: var(--text-dim); }
+
+.btn-limpar {
+  flex: none; background: none; border: 0;
+  color: var(--text-dim); cursor: pointer;
+  padding: 6px; border-radius: 50%; display: none; line-height: 0;
+}
+.btn-limpar:hover { color: var(--text); background: var(--surface-hover); }
+.btn-limpar.visivel { display: block; }
+
+.btn-buscar {
+  flex: none;
+  background: var(--roxo); color: #fff;
+  border: 0; border-radius: var(--raio-sm);
+  padding: 12px 22px;
+  font-family: var(--fonte-texto);
+  font-weight: 600; font-size: 14px; letter-spacing: .02em;
+  cursor: pointer; transition: background .15s;
+}
+.btn-buscar:hover { background: var(--roxo-claro); }
+.btn-buscar:disabled { opacity: .45; cursor: not-allowed; }
+
+.dica-teclado { margin-top: 10px; font-size: 12px; color: var(--text-dim); text-align: center; }
+.dica-teclado kbd {
+  font-family: var(--fonte-texto);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px; padding: 1px 6px; font-size: 11px;
+}
+
+/* ---------------------------------------------------------------- RESULTADO */
+#areaResultado { margin-top: 28px; }
+#areaResultado:empty { margin-top: 0; }
+
+.contagem { font-size: 12.5px; color: var(--text-dim); margin-bottom: 12px; letter-spacing: .02em; }
+
+.cartao {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--raio);
+  padding: 24px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+  animation: surgir .22s ease-out;
+}
+@keyframes surgir { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) { .cartao { animation: none; } }
+
+.cartao::before {
+  content: ""; position: absolute;
+  left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--roxo);
+}
+.cartao.ok::before     { background: var(--ok); }
+.cartao.alerta::before { background: var(--alerta); }
+.cartao.erro::before   { background: var(--erro); }
+
+/* A faixa fica mais grossa quando o resultado é uma negativa séria:
+   instituição cancelada ou em liquidação. Precisa saltar aos olhos. */
+.cartao.grave::before { width: 6px; background: var(--erro); }
+
+.selo {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .09em; text-transform: uppercase;
+  padding: 5px 11px; border-radius: 100px;
+}
+.selo.ok     { background: var(--ok-fundo);     color: var(--ok);     border: 1px solid rgba(52,211,153,.28); }
+.selo.alerta { background: var(--alerta-fundo); color: var(--alerta); border: 1px solid rgba(251,191,36,.28); }
+.selo.erro   { background: var(--erro-fundo);   color: var(--erro);   border: 1px solid rgba(248,113,113,.28); }
+.selo-ponto { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.cartao h2 {
+  font-family: var(--fonte-titulo);
+  font-weight: 700;
+  font-size: clamp(1.2rem, 3.6vw, 1.5rem);
+  line-height: 1.2; letter-spacing: .01em; text-transform: uppercase;
+  margin: 14px 0 4px; color: var(--text);
+  text-wrap: balance;
+}
+.cartao .cnpj { font-variant-numeric: tabular-nums; color: var(--text-muted); font-size: 14px; margin: 0; }
+
+.grade-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 18px 24px;
+  margin-top: 20px; padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.campo-rotulo {
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: .11em; text-transform: uppercase;
+  color: var(--roxo); margin: 0 0 6px;
+}
+.campo-valor { margin: 0; font-size: 14.5px; color: var(--text); }
+.campo-valor a { color: var(--roxo); text-decoration: none; border-bottom: 1px solid var(--line-strong); }
+
+.etiquetas { display: flex; flex-wrap: wrap; gap: 6px; }
+.etiqueta {
+  background: var(--roxo-fundo);
+  border: 1px solid var(--line);
+  border-radius: 6px; padding: 3px 9px;
+  font-size: 12.5px; color: var(--etiqueta-cor);
+  font-family: var(--fonte-texto);
+  cursor: pointer; transition: border-color .15s;
+}
+.etiqueta:hover { border-color: var(--line-strong); }
+.etiqueta.dominio { cursor: default; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+mark { background: rgba(168, 85, 247, .3); color: inherit; border-radius: 3px; padding: 0 2px; }
+
+.texto-estado { color: var(--text-muted); margin: 10px 0 0; font-size: 14.5px; }
+.texto-estado strong { color: var(--text); }
+
+/* Caixa de aviso forte, usada quando a instituição NÃO está autorizada */
+.aviso-grave {
+  margin-top: 18px;
+  background: var(--erro-fundo);
+  border: 1px solid rgba(248,113,113,.35);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--texto-erro);
+  font-size: 14px;
+}
+.aviso-grave strong { color: var(--contraste); }
+
+.sugestoes { margin-top: 16px; }
+.sugestoes-titulo { font-size: 12.5px; color: var(--text-dim); margin-bottom: 8px; }
+
+/* --------------------------------------------------- PAINEL DA BASE / STATUS */
+.painel-base {
+  margin-top: 40px;
+  border: 1px solid var(--line);
+  border-radius: var(--raio);
+  background: var(--bg-elev);
+  padding: 18px 20px;
+  display: flex; flex-wrap: wrap;
+  align-items: center; justify-content: space-between;
+  gap: 14px;
+}
+.painel-info { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 12.5px; }
+.painel-item { color: var(--text-dim); }
+.painel-item b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.painel-status { display: flex; align-items: center; gap: 7px; color: var(--ok); font-weight: 500; }
+.painel-status .selo-ponto { box-shadow: 0 0 6px currentColor; }
+.painel-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btn-secundario {
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--roxo);
+  border-radius: var(--raio-sm);
+  padding: 8px 14px;
+  font-family: var(--fonte-texto);
+  font-size: 12.5px; font-weight: 500;
+  cursor: pointer; transition: background .15s; white-space: nowrap;
+}
+.btn-secundario:hover { background: var(--roxo-fundo); }
+
+/* Resumo de quantas estão em cada situação (só na aba de IPs) */
+.resumo-status { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.pilula {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; padding: 4px 10px; border-radius: 100px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-muted);
+}
+.pilula b { color: var(--text); font-variant-numeric: tabular-nums; }
+.pilula .selo-ponto { width: 7px; height: 7px; }
+.pilula.ok .selo-ponto     { background: var(--ok); }
+.pilula.alerta .selo-ponto { background: var(--alerta); }
+.pilula.erro .selo-ponto   { background: var(--erro); }
+
+/* Lista completa */
+#listaCompleta { margin-top: 12px; }
+.tabela-lista {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--raio); overflow: hidden;
+}
+.tabela-lista th {
+  text-align: left; padding: 11px 14px;
+  font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--line); font-weight: 600;
+}
+.tabela-lista td { padding: 11px 14px; border-bottom: 1px solid var(--linha-tabela); color: var(--text-muted); vertical-align: top; }
+.tabela-lista tr:last-child td { border-bottom: 0; }
+.tabela-lista tr:hover td { background: var(--surface-hover); }
+.tabela-lista td:first-child { color: var(--text); font-weight: 500; }
+.rolagem-h { overflow-x: auto; border-radius: var(--raio); }
+
+/* ------------------------------------------------------------------- RODAPÉ */
+footer {
+  border-top: 1px solid var(--line);
+  padding: 28px 20px 36px;
+  text-align: center; color: var(--text-dim);
+  font-size: 12.5px; line-height: 1.7;
+}
+footer a { color: var(--text-muted); text-decoration: none; border-bottom: 1px solid var(--line); }
+footer a:hover { color: var(--roxo); }
+.aviso-legal { max-width: 62ch; margin: 0 auto 14px; color: var(--text-dim); }
+
+/* -------------------------------------------------------------- BOTÃO AJUDA */
+.btn-ajuda {
+  position: fixed; right: 20px; bottom: 20px;
+  width: 46px; height: 46px; border-radius: 50%;
+  background: var(--roxo); color: #fff; border: 0;
+  font-size: 19px; font-weight: 600; cursor: pointer;
+  box-shadow: var(--sombra-flutua);
+  z-index: 40; transition: transform .15s, background .15s;
+}
+.btn-ajuda:hover { background: var(--roxo-claro); transform: scale(1.06); }
+
+/* -------------------------------------------------------------------- MODAL */
+.fundo-modal {
+  position: fixed; inset: 0;
+  background: var(--modal-fundo);
+  backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  padding: 20px; z-index: 100;
+}
+.fundo-modal[data-aberto="sim"] { display: flex; }
+
+.modal {
+  background: var(--bg-elev);
+  border: 1px solid var(--line-strong);
+  border-radius: 18px; padding: 26px;
+  width: 100%; max-width: 520px; max-height: 85vh; overflow-y: auto;
+}
+.modal h3 {
+  font-family: var(--fonte-titulo);
+  font-size: 1.3rem; font-weight: 700;
+  letter-spacing: .02em; text-transform: uppercase;
+  margin: 0 0 4px; color: var(--text);
+}
+.modal-sub { font-size: 11.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--text-dim); margin: 0 0 20px; }
+.modal p { color: var(--text-muted); }
+.modal-rodape { margin-top: 22px; display: flex; justify-content: flex-end; gap: 8px; }
+
+.bloco-mudanca { border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid; }
+.bloco-mudanca.add    { background: var(--ok-fundo);   border-color: rgba(52,211,153,.25); }
+.bloco-mudanca.rem    { background: var(--erro-fundo); border-color: rgba(248,113,113,.25); }
+.bloco-mudanca.neutro { background: var(--roxo-fundo); border-color: var(--line); }
+.bloco-mudanca h4 { margin: 0 0 8px; font-size: 13px; font-weight: 600; }
+.bloco-mudanca.add h4 { color: var(--ok); }
+.bloco-mudanca.rem h4 { color: var(--erro); }
+.bloco-mudanca ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text-muted); }
+.bloco-mudanca li { margin-bottom: 3px; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+@media (max-width: 560px) {
+  .caixa-busca { flex-wrap: wrap; padding: 6px; }
+  #campoBusca { padding-left: 8px; }
+  .btn-buscar { width: 100%; }
+  .painel-base { flex-direction: column; align-items: stretch; }
+  .cartao { padding: 20px; }
+  .seletor { grid-template-columns: 1fr; }
+}
+</style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-6 pt-12">
 
-    <!-- Header Enxuto -->
-    <header class="text-center mb-8">
-        <h1 class="text-6xl font-bold neon-purple uppercase italic tracking-tighter">Nu - Consulta Bet</h1>
-        <p class="text-gray-400 mt-2 text-lg">Verifique se uma plataforma de apostas está autorizada pelo Governo Federal.</p>
-    </header>
+<body>
+<div class="conteudo">
 
-    <!-- Campo de Busca Principal -->
-    <div class="w-full max-w-2xl">
-        <div class="glass-card p-2 rounded-2xl flex items-center neon-border-input">
-            <input type="text" id="searchInput" 
-                   placeholder="Digite a marca (ex: Bet365) ou CNPJ..." 
-                   class="w-full bg-transparent p-5 outline-none text-white text-xl placeholder-gray-700"
-                   onkeypress="if(event.key === 'Enter') buscar()"
-                   autofocus>
-            <button onclick="buscar()" 
-                    class="bg-purple-600 hover:bg-purple-500 text-white px-8 py-5 rounded-xl font-bold transition-all uppercase">
-                PESQUISAR
-            </button>
-        </div>
+  <!-- =================================================== BARRA SUPERIOR -->
+  <div class="barra-topo">
+    <div class="barra-topo-interna">
+      <div class="marca"><span class="marca-ponto"></span> Nu · Consulta Bet</div>
+      <div class="topo-direita">
+        <a class="link-fonte" id="linkFonte" href="#" target="_blank" rel="noopener noreferrer">
+          Fonte: <b id="linkFonteTexto">—</b>
+        </a>
+        <button class="btn-tema" id="btnTema" type="button"
+                aria-label="Alternar entre tema claro e escuro" title="Alternar tema">
+          <svg class="icone-escuro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+          </svg>
+          <svg class="icone-claro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <section class="hero">
+      <h1 id="heroTitulo"></h1>
+      <p id="heroTexto"></p>
+    </section>
+
+    <!-- Em qual base estou procurando -->
+    <div class="seletor" role="tablist" aria-label="Escolha a base a consultar">
+      <button class="seletor-item" id="aba-bets" role="tab" aria-selected="true" data-modulo="bets">
+        <span class="seletor-titulo">Casas de apostas</span>
+        <span class="seletor-meta"><b id="conta-bets">—</b> autorizadas · SPA/MF</span>
+      </button>
+      <button class="seletor-item" id="aba-ips" role="tab" aria-selected="false" data-modulo="ips">
+        <span class="seletor-titulo">Inst. de Pagamento</span>
+        <span class="seletor-meta"><b id="conta-ips">—</b> na base · Banco Central</span>
+      </button>
     </div>
 
-    <!-- Área do Resultado da Pesquisa -->
-    <div id="resultArea" class="w-full max-w-2xl mt-8"></div>
+    <label for="campoBusca" class="sr-only">Buscar por nome, marca ou CNPJ</label>
+    <div class="caixa-busca">
+      <span class="icone-lupa" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path>
+        </svg>
+      </span>
+      <input id="campoBusca" type="search" autocomplete="off" spellcheck="false"
+             aria-describedby="contagemResultado">
+      <button class="btn-limpar" id="btnLimpar" type="button" aria-label="Limpar busca">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M18 6 6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+      <button class="btn-buscar" id="btnBuscar" type="button">Pesquisar</button>
+    </div>
+    <p class="dica-teclado">Aperte <kbd>/</kbd> para buscar · <kbd>Esc</kbd> para limpar</p>
 
-    <!-- Seção de Informações da Base e Histórico -->
-    <div class="text-center my-10 max-w-2xl">
-        <div style="display: inline-block; padding: 6px 18px; border: 1px solid #8a3ee5; border-radius: 50px; background-color: rgba(138, 62, 229, 0.1); color: #d1a5ff; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.5px; box-shadow: 0 0 12px rgba(138, 62, 229, 0.3); text-transform: uppercase;">
-    Lista publicada em 20/07/2026 17h28, com atualização no site oficial em 19/08/2026 12h40
+    <div id="areaResultado" role="region" aria-live="polite"></div>
+    <span id="contagemResultado" class="sr-only"></span>
+
+    <div class="painel-base">
+      <div style="flex:1;min-width:240px">
+        <div class="painel-status" id="statusBase">
+          <span class="selo-ponto"></span> <span id="statusTexto">Carregando base…</span>
+        </div>
+        <div class="painel-info" id="infoBase" style="margin-top:8px"></div>
+        <div class="resumo-status" id="resumoStatus"></div>
+      </div>
+      <div class="painel-acoes">
+        <button class="btn-secundario" id="btnLista" type="button" aria-expanded="false" aria-controls="listaCompleta">Ver lista completa</button>
+        <button class="btn-secundario" id="btnHistorico" type="button">O que mudou</button>
+      </div>
+    </div>
+
+    <div id="listaCompleta" hidden></div>
+
+  </main>
+
+  <footer>
+    <p class="aviso-legal" id="rodapeAviso"></p>
+    <p style="margin:0">Elaborado por Alexandre Gabbia</p>
+  </footer>
+
+  <button class="btn-ajuda" id="btnAjuda" type="button" aria-label="Dúvidas">?</button>
 </div>
 
-        <div class="flex items-center justify-center gap-4 mt-3 text-xs">
-            <span class="text-gray-500">
-                Fonte: <a href="https://www.gov.br/fazenda/pt-br/composicao/orgaos/secretaria-de-premios-e-apostas/lista-de-empresas" target="_blank" rel="noopener noreferrer" style="color: #a855f7; text-decoration: underline;">Governo Federal</a>
-            </span>
-            <span class="text-gray-700">•</span>
-            <button onclick="abrirModalHistorico()" style="color: #bc13fe; font-weight: bold; cursor: pointer; background: none; border: none; text-shadow: 0 0 8px rgba(188, 19, 254, 0.4);" class="hover:underline">
-                🔄 Ver o que mudou na última atualização
-            </button>
-        </div>
+<!-- ============================================================== MODAIS -->
+<div class="fundo-modal" id="modalAjuda" role="dialog" aria-modal="true" aria-labelledby="tituloAjuda">
+  <div class="modal">
+    <h3 id="tituloAjuda">Dúvidas?</h3>
+    <p class="modal-sub">Suporte</p>
+    <p>Mande um Slack para <strong style="color:var(--text)">@alexandregabbia</strong>.</p>
+    <p style="font-size:13.5px">Se uma empresa que você sabe que é autorizada não aparecer aqui, avise — pode ser que ela tenha entrado na lista depois da última atualização da base.</p>
+    <div class="modal-rodape">
+      <button class="btn-secundario" data-fechar="modalAjuda" type="button">Fechar</button>
     </div>
+  </div>
+</div>
 
-    <footer class="mt-auto py-6 text-gray-600 text-sm italic text-center">
-        Elaborado por Alexandre Gabbia
-    </footer>
-
-    <!-- Botão de Dúvidas / Ajuda -->
-    <button onclick="abrirModal()" class="fixed bottom-6 right-6 bg-purple-600 hover:bg-purple-500 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl transition-all hover:scale-110">
-        ?
-    </button>
-
-    <!-- Modal do Slack -->
-    <div id="slackModal" onclick="fecharModal()">
-        <div class="glass-card p-8 rounded-3xl max-w-sm w-full text-center neon-border-input" onclick="event.stopPropagation()">
-            <h3 class="text-2xl font-bold mb-4 text-purple-400">Dúvidas?</h3>
-            <p class="text-gray-300 text-lg mb-6">Mande um slack para <br><span class="text-white font-bold text-xl">@alexandregabbia</span></p>
-            <button onclick="fecharModal()" class="bg-purple-600 px-6 py-2 rounded-lg font-bold">Fechar</button>
-        </div>
+<div class="fundo-modal" id="modalHistorico" role="dialog" aria-modal="true" aria-labelledby="tituloHistorico">
+  <div class="modal">
+    <h3 id="tituloHistorico">Relatório de alterações</h3>
+    <p class="modal-sub" id="dataHistorico">Consultando…</p>
+    <div id="conteudoHistorico"></div>
+    <div class="modal-rodape">
+      <button class="btn-secundario" data-fechar="modalHistorico" type="button">Fechar</button>
     </div>
+  </div>
+</div>
 
-    <!-- Modal do Histórico de Mudanças -->
-    <div id="historicoModal" onclick="fecharModalHistorico()">
-        <div class="glass-card p-8 rounded-3xl max-w-lg w-full text-left neon-border-input" onclick="event.stopPropagation()">
-            <h3 class="text-2xl font-bold mb-1 text-purple-400">📊 Relatório de Alterações</h3>
-            <p id="dataRelatorio" class="text-xs text-gray-400 mb-6 uppercase tracking-wider"></p>
+<script>
+/* ==========================================================================
+   NU · CONSULTA — lógica
+   --------------------------------------------------------------------------
+   Duas consultas no mesmo site, cada uma com sua base e suas regras.
 
-            <div id="conteudoHistorico" class="space-y-4 max-h-80 overflow-y-auto pr-2"></div>
+   Regra número 1, válida para as duas:
+   o site NUNCA pode dizer "não consta" quando quem falhou foi ele mesmo.
 
-            <div class="mt-8 text-right">
-                <button onclick="fecharModalHistorico()" class="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2 rounded-lg font-bold transition-all">Fechar</button>
-            </div>
+   Regra número 2, específica das Instituições de Pagamento:
+   estar na base NÃO significa estar autorizada. A base do BCB inclui
+   instituições canceladas e em liquidação — e são justamente essas que
+   um analista mais precisa enxergar.
+   ========================================================================== */
+
+const Estado = { CARREGANDO: 'carregando', ERRO: 'erro', PRONTO: 'pronto' };
+
+/* --------------------------------------------------------------------------
+   DATAS DE EMERGÊNCIA (só para a base de bets no formato antigo)
+   Assim que o robô rodar, as datas passam a vir do próprio arquivo.
+   -------------------------------------------------------------------------- */
+const META_RESERVA = {
+  publicado_em:  '20/07/2026 17h28',
+  atualizado_em: '19/08/2026 12h40'
+};
+
+/* ==========================================================================
+   1. OS DOIS MÓDULOS
+   ========================================================================== */
+
+const MODULOS = {
+  bets: {
+    arquivo: 'dados.json',
+    historico: 'historico.json',
+    chaveLista: 'empresas',
+    titulo: 'Consulta <span class="destaque">Bet</span>',
+    subtitulo: 'Consulte a situação de uma plataforma de apostas na lista oficial do Governo Federal.',
+    placeholder: 'Digite a marca, o CNPJ ou o nome da empresa…',
+    rotuloBase: 'casas autorizadas',
+    fonteNome: 'gov.br / SPA-MF',
+    fonteUrl: 'https://www.gov.br/fazenda/pt-br/composicao/orgaos/secretaria-de-premios-e-apostas/transparencia-ativa-processos-de-autorizacao-de-apostas-de-quota-fixa/empresas-autorizadas',
+    rodape: 'Ferramenta informativa. A fonte oficial e definitiva é a Secretaria de Prêmios e Apostas do Ministério da Fazenda. Em caso de divergência, vale sempre a lista publicada no gov.br.',
+  },
+  ips: {
+    arquivo: 'ips.json',
+    historico: 'historico_ips.json',
+    chaveLista: 'instituicoes',
+    titulo: 'Instituições de <span class="destaque">Pagamento</span>',
+    subtitulo: 'Consulte a situação de uma Instituição de Pagamento na base de entidades supervisionadas pelo Banco Central.',
+    placeholder: 'Digite o CNPJ ou o nome da instituição…',
+    rotuloBase: 'instituições na base',
+    fonteNome: 'Banco Central',
+    fonteUrl: 'https://dadosabertos.bcb.gov.br/dataset/dados-cadastrais-de-entidades-autorizadas',
+    rodape: 'Ferramenta informativa, sem valor de certidão. A base cobre apenas Instituições de Pagamento, incluindo as que o BCB classifica como não sujeitas a autorização — bancos, financeiras, corretoras e instituidores de arranjo de pagamento não aparecem aqui. A fonte oficial é o Banco Central do Brasil.',
+  },
+};
+
+/* Estado de cada módulo, carregado sob demanda */
+const dados = {
+  bets: { estado: Estado.CARREGANDO, lista: [], meta: {}, carregou: false },
+  ips:  { estado: Estado.CARREGANDO, lista: [], meta: {}, carregou: false },
+};
+
+let aba = 'bets';
+
+/* --------------------------------------------------------------- atalhos */
+const $ = id => document.getElementById(id);
+const campo         = $('campoBusca');
+const areaResultado = $('areaResultado');
+const btnBuscar     = $('btnBuscar');
+const btnLimpar     = $('btnLimpar');
+const statusBase    = $('statusBase');
+const statusTexto   = $('statusTexto');
+const infoBase      = $('infoBase');
+const resumoStatus  = $('resumoStatus');
+const listaCompleta = $('listaCompleta');
+
+/* ==========================================================================
+   2. UTILITÁRIOS
+   ========================================================================== */
+
+function esc(txt) {
+  return String(txt ?? '').replace(/[&<>"']/g, c => (
+    { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+  ));
+}
+
+function normalizar(txt) {
+  return String(txt ?? '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function distancia(a, b) {
+  if (a === b) return 0;
+  if (!a.length || !b.length) return Math.max(a.length, b.length);
+  let linha = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let anterior = linha[0];
+    linha[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const temp = linha[j];
+      linha[j] = Math.min(linha[j] + 1, linha[j - 1] + 1,
+                          anterior + (a[i - 1] === b[j - 1] ? 0 : 1));
+      anterior = temp;
+    }
+  }
+  return linha[b.length];
+}
+
+function destacar(texto, termo) {
+  const t = esc(texto);
+  if (!termo || termo.length < 2) return t;
+  const alvo = normalizar(texto);
+  const pos = alvo.indexOf(termo);
+  if (pos === -1) return t;
+  let n = 0, ini = -1, fim = -1;
+  for (let i = 0; i < texto.length; i++) {
+    if (normalizar(texto[i]).length) {
+      if (n === pos) ini = i;
+      n++;
+      if (n === pos + termo.length) { fim = i + 1; break; }
+    }
+  }
+  if (ini === -1) return t;
+  if (fim === -1) fim = texto.length;
+  return esc(texto.slice(0, ini)) + '<mark>' + esc(texto.slice(ini, fim)) + '</mark>' + esc(texto.slice(fim));
+}
+
+function listaEtiquetas(valor, classe, termo) {
+  if (!valor) return '<span style="color:var(--text-dim)">—</span>';
+  const itens = String(valor).split(/[,;]/).map(s => s.trim()).filter(Boolean);
+  if (!itens.length) return '<span style="color:var(--text-dim)">—</span>';
+  return '<div class="etiquetas">' + itens.map(i =>
+    `<span class="etiqueta ${classe}"${classe === 'dominio' ? '' : ` data-busca="${esc(i)}" role="button" tabindex="0"`}>${destacar(i, termo)}</span>`
+  ).join('') + '</div>';
+}
+
+function hojeEmBrasilia() {
+  try {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
+  } catch { return new Date().toISOString().slice(0, 10); }
+}
+
+/** Dias de CALENDÁRIO — não períodos de 24 horas. Ver comentário no histórico. */
+function diasDesdeVerificacao(meta) {
+  const m = String(meta.verificado_em || '').match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  let iso;
+  if (m) iso = `${m[3]}-${m[2]}-${m[1]}`;
+  else if (meta.verificado_em_iso) iso = String(meta.verificado_em_iso).slice(0, 10);
+  else return null;
+
+  const [a1, m1, d1] = iso.split('-').map(Number);
+  const [a2, m2, d2] = hojeEmBrasilia().split('-').map(Number);
+  if (!a1 || !a2) return null;
+  return Math.max(0, Math.round((Date.UTC(a2, m2 - 1, d2) - Date.UTC(a1, m1 - 1, d1)) / 86400000));
+}
+
+function descreverVerificacao(meta) {
+  const dias = diasDesdeVerificacao(meta);
+  const partes = String(meta.verificado_em || '').split(' ');
+  const dia = partes[0] || '', hora = partes[1] || '';
+  const as = hora ? ` às ${hora}` : '';
+  if (dias === null) return meta.verificado_em ? `em ${meta.verificado_em}` : null;
+  if (dias === 0) return `hoje${as}`;
+  if (dias === 1) return `ontem${as}`;
+  return `há ${dias} dias, em ${dia.slice(0, 5)}${as}`;
+}
+
+/** "2026-09-11" -> "11/09/2026" */
+function dataBr(iso) {
+  const m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : (iso || '');
+}
+
+/* ==========================================================================
+   3. CARREGAMENTO (sob demanda: a aba de IPs só busca quando é aberta)
+   ========================================================================== */
+
+function definirEstado(modulo, novo, detalhe) {
+  dados[modulo].estado = novo;
+  if (modulo !== aba) return;
+
+  btnBuscar.disabled = (novo !== Estado.PRONTO);
+  const cfg = MODULOS[modulo];
+
+  if (novo === Estado.CARREGANDO) {
+    statusBase.style.color = 'var(--text-dim)';
+    statusTexto.textContent = 'Carregando base…';
+    campo.placeholder = 'Carregando a base oficial…';
+  }
+
+  if (novo === Estado.ERRO) {
+    statusBase.style.color = 'var(--erro)';
+    statusTexto.textContent = 'Base indisponível';
+    campo.placeholder = 'Base indisponível no momento';
+    areaResultado.innerHTML = `
+      <div class="cartao erro">
+        <span class="selo erro"><span class="selo-ponto"></span> Falha ao carregar</span>
+        <h2>Não foi possível carregar a base</h2>
+        <p class="texto-estado">
+          <strong>Isto não é um resultado de consulta.</strong> O site não conseguiu
+          ler a lista oficial, então não é possível afirmar nada agora.
+        </p>
+        <p class="texto-estado">
+          Recarregue a página em alguns instantes. Se continuar, consulte direto a
+          <a href="${cfg.fonteUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--roxo)">fonte oficial</a>.
+        </p>
+      </div>`;
+    if (typeof gtag === 'function') gtag('event', 'falha_carregar_base', { modulo, detalhe: String(detalhe || '') });
+  }
+
+  if (novo === Estado.PRONTO) {
+    statusBase.style.color = 'var(--ok)';
+    statusTexto.textContent = 'Base carregada';
+    campo.placeholder = cfg.placeholder;
+  }
+}
+
+async function carregar(modulo) {
+  const d = dados[modulo], cfg = MODULOS[modulo];
+  if (d.carregou) return;
+  d.carregou = true;
+  definirEstado(modulo, Estado.CARREGANDO);
+
+  try {
+    const versao = new Date().toISOString().slice(0, 10);
+    const resp = await fetch(`${cfg.arquivo}?v=${versao}`, { cache: 'no-cache' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+
+    const texto = await resp.text();
+    let bruto;
+    try { bruto = JSON.parse(texto); }
+    catch { bruto = texto.trim().split('\n').filter(l => l.trim()).map(l => JSON.parse(l)); }
+
+    if (Array.isArray(bruto)) {
+      d.lista = bruto;
+      d.meta = modulo === 'bets' ? { ...META_RESERVA } : {};
+    } else {
+      d.lista = bruto[cfg.chaveLista] || bruto.empresas || bruto.instituicoes || [];
+      d.meta = modulo === 'bets'
+        ? { ...META_RESERVA, ...(bruto.meta || {}) }
+        : (bruto.meta || {});
+    }
+
+    if (!d.lista.length) throw new Error('base vazia');
+
+    // Índice de busca pré-calculado
+    d.lista.forEach(e => {
+      e._busca = normalizar([
+        e.marcas, e.nomes, e.razao_social, e.cnpj, e.cnpj_raiz, e.dominio,
+      ].join(' '));
+      e._apelidos = String(e.marcas || e.nomes || '').split(/[,;]/).map(s => s.trim()).filter(Boolean);
+    });
+
+    definirEstado(modulo, Estado.PRONTO);
+    $(`conta-${modulo}`).textContent = d.lista.length;
+    if (modulo === aba) renderizarPainel();
+  } catch (erro) {
+    console.error(`[Consulta] Falha ao carregar ${cfg.arquivo}:`, erro);
+    d.carregou = false;                    // permite tentar de novo
+    definirEstado(modulo, Estado.ERRO, erro.message);
+  }
+}
+
+/* ==========================================================================
+   4. PAINEL
+   ========================================================================== */
+
+function renderizarPainel() {
+  const d = dados[aba], cfg = MODULOS[aba];
+  const partes = [];
+
+  partes.push(`<span class="painel-item"><b>${d.lista.length}</b> ${cfg.rotuloBase}</span>`);
+
+  if (aba === 'bets') {
+    if (d.meta.atualizado_em) partes.push(`<span class="painel-item">Lista oficial atualizada em <b>${esc(d.meta.atualizado_em)}</b></span>`);
+    if (d.meta.publicado_em)  partes.push(`<span class="painel-item">Publicada em <b>${esc(d.meta.publicado_em)}</b></span>`);
+  } else if (d.meta.data_base) {
+    partes.push(`<span class="painel-item">Posição do BCB em <b>${esc(dataBr(d.meta.data_base))}</b></span>`);
+  }
+
+  const dias = diasDesdeVerificacao(d.meta);
+  const quando = descreverVerificacao(d.meta);
+  if (quando) {
+    const velho = dias !== null && dias >= 8;
+    partes.push(
+      `<span class="painel-item"${velho ? ' style="color:var(--alerta)"' : ''}>` +
+      `${velho ? '⚠️ ' : ''}Fonte oficial verificada <b>${esc(quando)}</b></span>`
+    );
+  }
+  infoBase.innerHTML = partes.join('');
+
+  /* Quebra por situação — só faz sentido nas IPs, e é a informação que
+     impede alguém de tratar "está na base" como "está autorizada". */
+  const st = d.meta.por_status;
+  if (aba === 'ips' && st) {
+    const linhas = [];
+    if (st.autorizada) linhas.push(`<span class="pilula ok"><span class="selo-ponto"></span><b>${st.autorizada}</b> autorizadas em atividade</span>`);
+    if (st.autorizada_sem_atividade) linhas.push(`<span class="pilula alerta"><span class="selo-ponto"></span><b>${st.autorizada_sem_atividade}</b> autorizadas sem atividade</span>`);
+    if (st.nao_sujeita) linhas.push(`<span class="pilula alerta"><span class="selo-ponto"></span><b>${st.nao_sujeita}</b> não sujeitas a autorização</span>`);
+    if (st.cancelada) linhas.push(`<span class="pilula erro"><span class="selo-ponto"></span><b>${st.cancelada}</b> canceladas ou em liquidação</span>`);
+    resumoStatus.innerHTML = linhas.join('');
+  } else {
+    resumoStatus.innerHTML = '';
+  }
+}
+
+/* ==========================================================================
+   5. BUSCA
+   ========================================================================== */
+
+/**
+ * Registra no Analytics uma busca que não achou nada.
+ *
+ * O termo é enviado porque ele responde algo útil: qual marca ou
+ * instituição está faltando na base. São nomes e CNPJs de empresas
+ * públicas — o que o analista digita é a contraparte que ele está
+ * checando, não o cliente.
+ *
+ * A exceção é colagem errada. Num fluxo em que se cola CNPJ o dia inteiro,
+ * uma hora alguém cola outra coisa. Se o que foi digitado tiver cara de
+ * CPF, o termo não é enviado — só o registro de que houve busca sem
+ * resultado. Dado pessoal não sai daqui nem por acidente.
+ */
+function registrarBuscaVazia(bruto) {
+  if (typeof gtag !== 'function') return;
+
+  const digitos = String(bruto).replace(/\D/g, '');
+  const pareceCPF = digitos.length === 11;
+
+  gtag('event', 'busca_sem_resultado', {
+    modulo: aba,
+    termo: pareceCPF ? '(omitido: formato de CPF)' : String(bruto).slice(0, 80),
+  });
+}
+
+function buscar() {
+  const d = dados[aba];
+  if (d.estado !== Estado.PRONTO) return;
+
+  const bruto = campo.value.trim();
+  const termo = normalizar(bruto);
+  btnLimpar.classList.toggle('visivel', bruto.length > 0);
+
+  if (termo.length < 2) {
+    areaResultado.innerHTML = '';
+    $('contagemResultado').textContent = '';
+    return;
+  }
+
+  const achados = d.lista.filter(e => e._busca.includes(termo));
+
+  if (achados.length) {
+    achados.sort((a, b) => pontuar(b, termo) - pontuar(a, termo));
+    const cabecalho = achados.length === 1 ? '1 resultado encontrado' : `${achados.length} resultados encontrados`;
+    $('contagemResultado').textContent = cabecalho;
+    areaResultado.innerHTML =
+      `<p class="contagem">${cabecalho}</p>` +
+      achados.slice(0, 25).map(e => aba === 'bets' ? cartaoBet(e, termo) : cartaoIP(e, termo)).join('') +
+      (achados.length > 25 ? `<p class="contagem">Mostrando os 25 primeiros. Refine a busca.</p>` : '');
+  } else {
+    naoEncontrado(bruto, termo);
+    registrarBuscaVazia(bruto);
+  }
+}
+
+function pontuar(e, termo) {
+  let p = 0;
+  if (e._apelidos.some(m => normalizar(m) === termo)) p += 100;
+  if (e._apelidos.some(m => normalizar(m).startsWith(termo))) p += 50;
+  if (normalizar(e.cnpj).includes(termo)) p += 30;
+  if (normalizar(e.cnpj_raiz || '').includes(termo)) p += 25;
+  if (normalizar(e.razao_social || '').includes(termo)) p += 10;
+  // Uma instituição cancelada sobe na lista: é o que não pode passar batido
+  if (e.status && e.status !== 'autorizada') p += 5;
+  return p;
+}
+
+/* ------------------------------------------------------------ cartão: bets */
+function cartaoBet(e, termo) {
+  const judicial = e.origem === 'judicial' || /judicial|liminar/i.test(e.portaria || '');
+  const selo = judicial
+    ? '<span class="selo alerta"><span class="selo-ponto"></span> Autorizada por decisão judicial</span>'
+    : '<span class="selo ok"><span class="selo-ponto"></span> Autorizada</span>';
+  const nota = judicial
+    ? `<p class="texto-estado" style="font-size:13.5px">Opera por liminar, durante o período de adaptação. Para fins legais, tem os mesmos direitos e deveres de uma empresa autorizada administrativamente.</p>`
+    : '';
+  const linkDoc = e.documento_url
+    ? ` <a href="${esc(e.documento_url)}" target="_blank" rel="noopener noreferrer">ver ato ↗</a>` : '';
+
+  return `
+    <article class="cartao ${judicial ? 'alerta' : 'ok'}">
+      ${selo}
+      <h2>${destacar(e.razao_social || '—', termo)}</h2>
+      <p class="cnpj">CNPJ ${destacar(e.cnpj || '—', termo)}</p>
+      ${nota}
+      <div class="grade-campos">
+        <div>
+          <p class="campo-rotulo">Marcas autorizadas</p>
+          ${listaEtiquetas(e.marcas, 'marca', termo)}
         </div>
-    </div>
+        <div>
+          <p class="campo-rotulo">${judicial ? 'Processo judicial' : 'Portaria de autorização'}</p>
+          <p class="campo-valor">${destacar(e.portaria || '—', termo)}${linkDoc}</p>
+        </div>
+        ${e.dominio ? `
+        <div style="grid-column:1/-1">
+          <p class="campo-rotulo">Domínios oficiais</p>
+          ${listaEtiquetas(e.dominio, 'dominio', termo)}
+        </div>` : ''}
+      </div>
+    </article>`;
+}
 
-    <script>
-        let baseDados = [];
+/* ------------------------------------------------------------- cartão: IPs */
+function cartaoIP(e, termo) {
+  const status = e.status || 'indefinida';
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const inputElement = document.getElementById('searchInput');
-            if (inputElement) inputElement.focus();
-        });
+  /* O ponto mais importante desta tela: constar na base do BCB não é o
+     mesmo que estar autorizada. Cada situação recebe cor e texto próprios. */
+  const visual = {
+    autorizada: {
+      classe: 'ok',
+      selo: '<span class="selo ok"><span class="selo-ponto"></span> Autorizada e em atividade</span>',
+      aviso: '',
+    },
+    autorizada_sem_atividade: {
+      classe: 'alerta',
+      selo: '<span class="selo alerta"><span class="selo-ponto"></span> Autorizada, sem atividade</span>',
+      aviso: `<div class="aviso-grave" style="background:var(--alerta-fundo);border-color:rgba(251,191,36,.35);color:var(--texto-alerta)">
+                <strong>Autorizada, mas sem operação registrada no BCB.</strong>
+                Movimentação relevante em nome de uma instituição nesta situação
+                merece atenção na análise.
+              </div>`,
+    },
+    /* Categoria que o BCB registra mas nunca exigiu autorização — as que
+       operavam abaixo do limite de volume. A Resolução BCB 494 acabou com
+       ela: o prazo para se regularizar venceu em 31/05/2026. Uma empresa
+       ainda aqui é, por si só, um dado relevante para a análise. */
+    nao_sujeita: {
+      classe: 'alerta',
+      selo: '<span class="selo alerta"><span class="selo-ponto"></span> Não sujeita a autorização</span>',
+      aviso: `<div class="aviso-grave" style="background:var(--alerta-fundo);border-color:rgba(251,191,36,.35);color:var(--texto-alerta)">
+                <strong>Consta no cadastro do BCB em uma categoria que não exigia autorização.</strong>
+                Eram instituições abaixo do limite de volume. A Resolução BCB nº 494
+                encerrou essa categoria — o prazo para pedir autorização venceu em
+                <strong>31/05/2026</strong>.
+                <br><br>
+                Ou seja: <strong>não é o mesmo que estar autorizada</strong>, e permanecer
+                nesta situação hoje merece atenção na análise.
+              </div>`,
+    },
+    cancelada: {
+      classe: 'erro grave',
+      selo: '<span class="selo erro"><span class="selo-ponto"></span> Não autorizada a operar</span>',
+      aviso: `<div class="aviso-grave">
+                <strong>Esta instituição consta na base do Banco Central, mas NÃO está autorizada a operar.</strong>
+                Aparecer nesta consulta não significa regularidade — significa que o BCB
+                mantém o registro histórico dela.
+              </div>`,
+    },
+    indefinida: {
+      classe: '',
+      selo: '<span class="selo alerta"><span class="selo-ponto"></span> Situação não classificada</span>',
+      aviso: `<div class="aviso-grave" style="background:var(--roxo-fundo);border-color:var(--line-strong);color:var(--text-muted)">
+                O Banco Central informa uma situação que este site ainda não sabe
+                interpretar. Confira o texto original abaixo e, na dúvida, consulte a fonte.
+              </div>`,
+    },
+  }[status];
 
-        // Carrega a base
-        fetch('dados.json?t=' + new Date().getTime())
-            .then(res => res.text())
-            .then(text => {
-                try {
-                    baseDados = JSON.parse(text);
-                } catch (e) {
-                    baseDados = text.trim().split('\n').filter(l => l.trim() !== "").map(line => JSON.parse(line));
-                }
-            });
+  const local = [e.municipio, e.uf].filter(Boolean).join(' · ');
 
-        function normalize(txt) {
-            return txt ? txt.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w]/g, '') : '';
-        }
+  return `
+    <article class="cartao ${visual.classe}">
+      ${visual.selo}
+      <h2>${destacar(e.razao_social || '—', termo)}</h2>
+      <p class="cnpj">CNPJ ${destacar(e.cnpj || '—', termo)}</p>
+      ${visual.aviso}
+      <div class="grade-campos">
+        <div>
+          <p class="campo-rotulo">Situação no BCB</p>
+          <p class="campo-valor">${esc(e.situacao || '—')}</p>
+        </div>
+        <div>
+          <p class="campo-rotulo">Natureza jurídica</p>
+          <p class="campo-valor">${esc(e.natureza_juridica || '—')}</p>
+        </div>
+        ${e.nomes ? `
+        <div>
+          <p class="campo-rotulo">Também conhecida como</p>
+          ${listaEtiquetas(e.nomes, 'marca', termo)}
+        </div>` : ''}
+        ${local ? `
+        <div>
+          <p class="campo-rotulo">Sede</p>
+          <p class="campo-valor">${esc(local)}</p>
+        </div>` : ''}
+        ${e.codigo_bacen ? `
+        <div>
+          <p class="campo-rotulo">Código no Bacen</p>
+          <p class="campo-valor" style="font-variant-numeric:tabular-nums">${esc(e.codigo_bacen)}</p>
+        </div>` : ''}
+      </div>
+    </article>`;
+}
 
-        function buscar() {
-            const query = document.getElementById('searchInput').value;
-            const queryLimpa = normalize(query);
-            const container = document.getElementById('resultArea');
+/* ------------------------------------------------------- não encontrado */
+function naoEncontrado(bruto, termo) {
+  const d = dados[aba], cfg = MODULOS[aba];
+  const sugestoes = sugerir(termo);
+  $('contagemResultado').textContent = 'Nenhum resultado encontrado';
 
-            if (queryLimpa.length < 2) {
-                container.innerHTML = "";
-                return;
-            }
+  const referencia = aba === 'bets'
+    ? (d.meta.atualizado_em ? `da lista publicada em ${esc(d.meta.atualizado_em)}` : 'da data de referência')
+    : (d.meta.data_base ? `da posição de ${esc(dataBr(d.meta.data_base))}` : 'da data de referência');
 
-            const resultado = baseDados.find(item => {
-                const marcasLimpas = normalize(item.marcas || '');
-                const cnpjLimpo = normalize(item.cnpj || '');
-                const razaoLimpa = normalize(item.razao_social || '');
-                return marcasLimpas.includes(queryLimpa) || cnpjLimpo.includes(queryLimpa) || razaoLimpa.includes(queryLimpa);
-            });
+  /* Nas IPs a negativa precisa de um cuidado extra: a base cobre APENAS
+     Instituições de Pagamento. Um banco consultado aqui dá "não consta",
+     e isso não significa que ele não seja regulado. */
+  const ressalva = aba === 'ips'
+    ? `<div class="aviso-grave" style="background:var(--alerta-fundo);border-color:rgba(251,191,36,.35);color:var(--texto-alerta)">
+         <strong>Esta base cobre apenas Instituições de Pagamento.</strong>
+         Bancos, financeiras, corretoras e cooperativas são regulados pelo BCB
+         e <em>não aparecem aqui</em>. Para esses, consulte direto o
+         <a href="${cfg.fonteUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--contraste)">Banco Central</a>.
+       </div>`
+    : '';
 
-            if (resultado) {
-                container.innerHTML = `
-                    <div class="glass-card p-8 rounded-3xl border-l-8 border-green-500 animate-in fade-in duration-500">
-                        <span class="bg-green-500 text-black px-3 py-1 rounded-md text-xs font-bold uppercase">Regulamentada</span>
-                        <h2 class="text-4xl font-bold mt-4 text-white uppercase">${resultado.razao_social}</h2>
-                        <p class="text-gray-500 text-xl mb-6">CNPJ: ${resultado.cnpj}</p>
-                        
-                        <div class="border-t border-gray-800 pt-6">
-                            <p class="text-purple-400 font-bold uppercase text-sm tracking-widest mb-1">Portaria de Autorização:</p>
-                            <p class="text-white text-2xl font-bold">${resultado.portaria}</p>
-                        </div>
-                        
-                        <div class="mt-6">
-                            <p class="text-gray-600 text-sm italic">Marcas: ${resultado.marcas || 'N/A'}</p>
-                        </div>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = `
-                    <div class="glass-card p-8 rounded-3xl border-l-8 border-red-600 text-center">
-                        <h2 class="text-2xl font-bold text-red-500 mb-2">NÃO LOCALIZADA</h2>
-                        <p class="text-gray-400 italic">Essa plataforma não consta como regulamentada para a data de referência.</p>
-                    </div>
-                `;
-            }
-        }
+  areaResultado.innerHTML = `
+    <article class="cartao erro">
+      <span class="selo erro"><span class="selo-ponto"></span> Não consta na base</span>
+      <h2>Nada encontrado para "${esc(bruto)}"</h2>
+      <p class="texto-estado">
+        Nenhum registro com esse nome ou CNPJ aparece na base ${referencia}.
+      </p>
+      ${ressalva}
+      <p class="texto-estado" style="font-size:13.5px">
+        Antes de concluir qualquer coisa: confira a grafia, tente pelo
+        <strong>CNPJ</strong> (inclusive só a raiz, os 8 primeiros dígitos), ou
+        consulte a <a href="${cfg.fonteUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--roxo)">fonte oficial</a>.
+      </p>
+      ${sugestoes.length ? `
+        <div class="sugestoes">
+          <p class="sugestoes-titulo">Você quis dizer:</p>
+          <div class="etiquetas">
+            ${sugestoes.map(s => `<span class="etiqueta" data-busca="${esc(s)}" role="button" tabindex="0">${esc(s)}</span>`).join('')}
+          </div>
+        </div>` : ''}
+    </article>`;
+}
 
-        // Modais
-        function abrirModal() { document.getElementById('slackModal').style.display = 'flex'; }
-        function fecharModal() { document.getElementById('slackModal').style.display = 'none'; }
+function sugerir(termo) {
+  const limite = termo.length <= 5 ? 1 : termo.length <= 9 ? 2 : 3;
+  const candidatos = [];
+  for (const e of dados[aba].lista) {
+    for (const nome of e._apelidos) {
+      const n = normalizar(nome);
+      if (!n) continue;
+      const dist = distancia(termo, n);
+      if (dist <= limite) candidatos.push({ nome, custo: dist });
+    }
+  }
+  candidatos.sort((a, b) => a.custo - b.custo || a.nome.length - b.nome.length);
+  const vistos = new Set();
+  return candidatos.filter(c => !vistos.has(c.nome) && vistos.add(c.nome)).slice(0, 4).map(c => c.nome);
+}
 
-        function abrirModalHistorico() {
-            document.getElementById('historicoModal').style.display = 'flex';
-            const container = document.getElementById('conteudoHistorico');
-            const dataElement = document.getElementById('dataRelatorio');
+/* ==========================================================================
+   6. LISTA COMPLETA
+   ========================================================================== */
 
-            dataElement.innerText = "CONSULTANDO HISTÓRICO...";
+let listaVisivel = false;
 
-            fetch('historico.json?t=' + new Date().getTime())
-                .then(res => res.json())
-                .then(data => {
-                    dataElement.innerText = `ÚLTIMA VERIFICAÇÃO: ${data.data || '14/08/2026'}`;
-                    let html = '';
-                    const adicionadas = data.adicionadas || [];
-                    const removidas = data.removidas || [];
+function alternarLista() {
+  const d = dados[aba];
+  if (d.estado !== Estado.PRONTO) return;
+  listaVisivel = !listaVisivel;
+  const btn = $('btnLista');
+  btn.setAttribute('aria-expanded', String(listaVisivel));
+  btn.textContent = listaVisivel ? 'Ocultar lista' : 'Ver lista completa';
+  listaCompleta.hidden = !listaVisivel;
+  if (listaVisivel) desenharLista();
+}
 
-                    if (adicionadas.length > 0) {
-                        html += `<div class="p-4 rounded-xl bg-green-950/40 border border-green-500/40 mb-3"><p class="text-green-400 font-bold text-sm mb-2">🟢 +${adicionadas.length} Empresa(s) Adicionada(s):</p><ul class="text-xs text-gray-200 list-disc list-inside space-y-1">${adicionadas.map(i => `<li>${i}</li>`).join('')}</ul></div>`;
-                    }
-                    if (removidas.length > 0) {
-                        html += `<div class="p-4 rounded-xl bg-red-950/40 border border-red-500/40 mb-3"><p class="text-red-400 font-bold text-sm mb-2">🔴 -${removidas.length} Empresa(s) Removida(s):</p><ul class="text-xs text-gray-200 list-disc list-inside space-y-1">${removidas.map(i => `<li>${i}</li>`).join('')}</ul></div>`;
-                    }
-                    if (adicionadas.length === 0 && removidas.length === 0) {
-                        html = `<div class="p-4 rounded-xl bg-purple-950/30 border border-purple-500/30 text-center py-6"><p class="text-purple-300 font-bold text-sm">✅ Nenhuma alteração identificada</p><p class="text-xs text-gray-400 mt-1">A lista oficial do Governo permanece idêntica à verificação anterior.</p></div>`;
-                    }
-                    container.innerHTML = html;
-                })
-                .catch(() => {
-                    dataElement.innerText = "ÚLTIMA VERIFICAÇÃO: 14/08/2026";
-                    container.innerHTML = `<div class="p-4 rounded-xl bg-purple-950/30 border border-purple-500/30 text-center py-6"><p class="text-purple-300 font-bold text-sm">✅ Nenhuma alteração identificada</p><p class="text-xs text-gray-400 mt-1">A lista oficial do Governo permanece idêntica à verificação anterior.</p></div>`;
-                });
-        }
+function desenharLista() {
+  const d = dados[aba];
+  const ordenada = [...d.lista].sort((a, b) =>
+    (a.razao_social || '').localeCompare(b.razao_social || '', 'pt-BR'));
 
-        function fecharModalHistorico() {
-            document.getElementById('historicoModal').style.display = 'none';
-        }
-    </script>
+  const cabecalho = aba === 'bets'
+    ? '<tr><th>Empresa</th><th>CNPJ</th><th>Marcas</th></tr>'
+    : '<tr><th>Instituição</th><th>CNPJ</th><th>Situação</th></tr>';
+
+  const linhas = ordenada.map(e => {
+    if (aba === 'bets') {
+      return `<tr><td>${esc(e.razao_social || '—')}</td>
+              <td style="font-variant-numeric:tabular-nums">${esc(e.cnpj || '—')}</td>
+              <td>${esc(e.marcas || '—')}</td></tr>`;
+    }
+    const cor = e.status === 'autorizada' ? 'var(--ok)'
+              : e.status === 'cancelada' ? 'var(--erro)' : 'var(--alerta)';
+    return `<tr><td>${esc(e.razao_social || '—')}</td>
+            <td style="font-variant-numeric:tabular-nums">${esc(e.cnpj || '—')}</td>
+            <td style="color:${cor}">${esc(e.situacao || '—')}</td></tr>`;
+  }).join('');
+
+  listaCompleta.innerHTML =
+    `<div class="rolagem-h"><table class="tabela-lista"><thead>${cabecalho}</thead><tbody>${linhas}</tbody></table></div>`;
+}
+
+/* ==========================================================================
+   7. MODAIS
+   ========================================================================== */
+
+let ultimoFoco = null;
+
+function abrirModal(id) {
+  ultimoFoco = document.activeElement;
+  const m = $(id);
+  m.dataset.aberto = 'sim';
+  const alvo = m.querySelector('button');
+  if (alvo) alvo.focus();
+}
+function fecharModal(id) {
+  $(id).dataset.aberto = 'nao';
+  if (ultimoFoco) ultimoFoco.focus();
+}
+function fecharTodosModais() {
+  document.querySelectorAll('.fundo-modal[data-aberto="sim"]').forEach(m => { m.dataset.aberto = 'nao'; });
+}
+
+async function abrirHistorico() {
+  abrirModal('modalHistorico');
+  const alvo = $('conteudoHistorico'), data = $('dataHistorico');
+  const d = dados[aba], cfg = MODULOS[aba];
+  data.textContent = 'Consultando…';
+  alvo.innerHTML = '';
+
+  try {
+    const versao = new Date().toISOString().slice(0, 10);
+    const resp = await fetch(`${cfg.historico}?v=${versao}`, { cache: 'no-cache' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const h = await resp.json();
+
+    /* Duas datas diferentes, e confundi-las deixava este modal parecendo
+       travado no passado:
+         verificado_em -> quando o robô conferiu a fonte (anda todo dia útil)
+         alterado_em   -> quando a lista de fato mudou (pode ficar parada) */
+    data.textContent = `Fonte oficial verificada ${descreverVerificacao(d.meta) || '—'}`;
+
+    const add = h.adicionadas || [];
+    const rem = h.removidas || [];
+    const alt = h.marcas_alteradas || [];
+    const houve = add.length || rem.length || alt.length;
+
+    let diasAlt = null;
+    if (h.alterado_em_iso) {
+      const q = new Date(h.alterado_em_iso);
+      if (!isNaN(q)) diasAlt = Math.max(0, Math.floor((Date.now() - q.getTime()) / 86400000));
+    }
+    const recente = diasAlt !== null && diasAlt <= 8;
+    const quandoAlt = h.alterado_em || h.data || 'data não registrada';
+
+    let html = '';
+    if (!houve) {
+      html = `<div class="bloco-mudanca neutro">
+        <h4 style="color:var(--roxo)">Nenhuma alteração registrada</h4>
+        <p style="margin:0;font-size:13px;color:var(--text-muted)">
+          A lista oficial não mudou desde que o acompanhamento começou.
+        </p></div>`;
+    } else {
+      html += recente
+        ? `<p style="margin:0 0 12px;font-size:12.5px;color:var(--ok)">Alterações detectadas em <strong>${esc(quandoAlt)}</strong>.</p>`
+        : `<div class="bloco-mudanca neutro">
+             <h4 style="color:var(--roxo)">Nenhuma alteração recente</h4>
+             <p style="margin:0;font-size:13px;color:var(--text-muted)">
+               A lista está igual desde <strong style="color:var(--text)">${esc(quandoAlt)}</strong>.
+               Abaixo, a última mudança registrada.
+             </p></div>`;
+
+      if (add.length) html += `<div class="bloco-mudanca add"><h4>+${add.length} entrou(ram)</h4>
+        <ul>${add.map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>`;
+      if (rem.length) html += `<div class="bloco-mudanca rem"><h4>−${rem.length} saiu(ram)</h4>
+        <ul>${rem.map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>`;
+      if (alt.length) html += `<div class="bloco-mudanca neutro"><h4 style="color:var(--roxo)">${alt.length} com marcas alteradas</h4>
+        <ul>${alt.map(a => `<li><strong style="color:var(--text)">${esc(a.empresa)}</strong>: ${esc(a.antes)} → ${esc(a.depois)}</li>`).join('')}</ul></div>`;
+    }
+
+    const carimbo = aba === 'bets'
+      ? (d.meta.atualizado_em ? `Carimbo da página do gov.br: atualizada em <strong style="color:var(--text-muted)">${esc(d.meta.atualizado_em)}</strong>. O governo às vezes republica a página sem mexer na lista.` : '')
+      : (d.meta.data_base ? `Posição da base do Banco Central: <strong style="color:var(--text-muted)">${esc(dataBr(d.meta.data_base))}</strong>.` : '');
+    if (carimbo) html += `<p style="margin:14px 0 0;font-size:12px;color:var(--text-dim)">${carimbo}</p>`;
+
+    alvo.innerHTML = html;
+
+  } catch (erro) {
+    // Falha de rede NÃO pode virar "nenhuma alteração".
+    console.error('[Consulta] Falha ao carregar histórico:', erro);
+    data.textContent = 'Indisponível';
+    alvo.innerHTML = `<div class="bloco-mudanca rem">
+      <h4>Não foi possível carregar o histórico</h4>
+      <p style="margin:0;font-size:13px;color:var(--text-muted)">
+        Isto não significa que nada mudou — significa que o arquivo não pôde ser lido.
+      </p></div>`;
+  }
+}
+
+/* ==========================================================================
+   8. TROCA DE ABA
+   ========================================================================== */
+
+function trocarAba(novo) {
+  if (novo === aba) return;
+  aba = novo;
+  const cfg = MODULOS[aba];
+
+  document.querySelectorAll('.seletor-item').forEach(b =>
+    b.setAttribute('aria-selected', String(b.dataset.modulo === aba)));
+
+  $('heroTitulo').innerHTML = cfg.titulo;
+  $('heroTexto').textContent = cfg.subtitulo;
+  $('rodapeAviso').textContent = cfg.rodape;
+  $('linkFonte').href = cfg.fonteUrl;
+  $('linkFonteTexto').textContent = cfg.fonteNome + ' ↗';
+
+  campo.value = '';
+  btnLimpar.classList.remove('visivel');
+  areaResultado.innerHTML = '';
+  listaCompleta.innerHTML = '';
+  listaCompleta.hidden = true;
+  listaVisivel = false;
+  $('btnLista').textContent = 'Ver lista completa';
+  $('btnLista').setAttribute('aria-expanded', 'false');
+
+  if (typeof gtag === 'function') gtag('event', 'trocar_aba', { modulo: aba });
+
+  definirEstado(aba, dados[aba].estado);
+  if (dados[aba].estado === Estado.PRONTO) renderizarPainel();
+  carregar(aba);
+  campo.focus();
+}
+
+/* ==========================================================================
+   9. TEMA CLARO / ESCURO
+   ========================================================================== */
+
+/* O escuro é o padrão: é como as pessoas já conhecem o site. O claro entra
+   por escolha, e a escolha fica guardada no navegador de quem escolheu.
+
+   Tudo dentro de try/catch porque o localStorage pode não existir: aba
+   anônima, navegador com dados de site bloqueados, política corporativa.
+   Nesses casos o tema simplesmente não é lembrado — o site funciona igual. */
+
+const CHAVE_TEMA = 'consulta:tema';
+
+function lerTemaSalvo() {
+  try { return localStorage.getItem(CHAVE_TEMA); } catch { return null; }
+}
+
+function aplicarTema(tema) {
+  if (tema === 'claro') document.documentElement.setAttribute('data-tema', 'claro');
+  else document.documentElement.removeAttribute('data-tema');
+
+  const btn = $('btnTema');
+  if (btn) {
+    const proximo = tema === 'claro' ? 'escuro' : 'claro';
+    btn.setAttribute('aria-label', `Mudar para o tema ${proximo}`);
+    btn.setAttribute('title', `Mudar para o tema ${proximo}`);
+  }
+}
+
+function alternarTema() {
+  const atual = document.documentElement.getAttribute('data-tema') === 'claro' ? 'claro' : 'escuro';
+  const novo = atual === 'claro' ? 'escuro' : 'claro';
+  aplicarTema(novo);
+  try { localStorage.setItem(CHAVE_TEMA, novo); } catch { /* sem memória, tudo bem */ }
+  if (typeof gtag === 'function') gtag('event', 'trocar_tema', { tema: novo });
+}
+
+/* ==========================================================================
+   10. EVENTOS
+   ========================================================================== */
+
+let temporizador;
+campo.addEventListener('input', () => {
+  btnLimpar.classList.toggle('visivel', campo.value.length > 0);
+  clearTimeout(temporizador);
+  temporizador = setTimeout(buscar, 160);
+});
+campo.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { clearTimeout(temporizador); buscar(); }
+});
+btnBuscar.addEventListener('click', () => { clearTimeout(temporizador); buscar(); });
+btnLimpar.addEventListener('click', () => {
+  campo.value = '';
+  btnLimpar.classList.remove('visivel');
+  areaResultado.innerHTML = '';
+  campo.focus();
+});
+
+document.querySelectorAll('.seletor-item').forEach(b => {
+  b.addEventListener('click', () => trocarAba(b.dataset.modulo));
+
+  /* Brilho seguindo o cursor: o JS só informa ONDE o ponteiro está,
+     em porcentagem. O desenho é todo do CSS, o que deixa o navegador
+     cuidar da performance. */
+  b.addEventListener('pointermove', e => {
+    const caixa = b.getBoundingClientRect();
+    b.style.setProperty('--mx', `${((e.clientX - caixa.left) / caixa.width) * 100}%`);
+    b.style.setProperty('--my', `${((e.clientY - caixa.top) / caixa.height) * 100}%`);
+  });
+
+  // ao sair, o brilho volta para o centro — assim não "salta" na próxima entrada
+  b.addEventListener('pointerleave', () => {
+    b.style.setProperty('--mx', '50%');
+    b.style.setProperty('--my', '50%');
+  });
+});
+
+$('btnLista').addEventListener('click', alternarLista);
+$('btnHistorico').addEventListener('click', abrirHistorico);
+$('btnAjuda').addEventListener('click', () => abrirModal('modalAjuda'));
+$('btnTema').addEventListener('click', alternarTema);
+
+document.querySelectorAll('.fundo-modal').forEach(fundo => {
+  fundo.addEventListener('click', e => { if (e.target === fundo) fecharModal(fundo.id); });
+});
+document.querySelectorAll('[data-fechar]').forEach(b =>
+  b.addEventListener('click', () => fecharModal(b.dataset.fechar)));
+
+document.addEventListener('click', e => {
+  const alvo = e.target.closest('[data-busca]');
+  if (!alvo) return;
+  campo.value = alvo.dataset.busca;
+  buscar();
+  campo.scrollIntoView({ block: 'center', behavior: 'smooth' });
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const alvo = e.target.closest?.('[data-busca]');
+  if (!alvo) return;
+  e.preventDefault();
+  campo.value = alvo.dataset.busca;
+  buscar();
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.querySelector('.fundo-modal[data-aberto="sim"]')) { fecharTodosModais(); return; }
+    if (document.activeElement === campo) {
+      campo.value = '';
+      btnLimpar.classList.remove('visivel');
+      areaResultado.innerHTML = '';
+    }
+    return;
+  }
+  if (e.key === '/' && document.activeElement !== campo) { e.preventDefault(); campo.focus(); }
+});
+
+/* ==========================================================================
+   11. INÍCIO
+   ========================================================================== */
+
+(function iniciar() {
+  aplicarTema(lerTemaSalvo() === 'claro' ? 'claro' : 'escuro');
+
+  const cfg = MODULOS[aba];
+  $('heroTitulo').innerHTML = cfg.titulo;
+  $('heroTexto').textContent = cfg.subtitulo;
+  $('rodapeAviso').textContent = cfg.rodape;
+  $('linkFonte').href = cfg.fonteUrl;
+  $('linkFonteTexto').textContent = cfg.fonteNome + ' ↗';
+  document.querySelector('.seletor-item[data-modulo="bets"]').setAttribute('aria-selected', 'true');
+
+  carregar('bets').then(() => campo.focus());
+})();
+</script>
 </body>
 </html>
