@@ -6,19 +6,33 @@
 
 <!-- ==========================================================================
      O NOME DO PRODUTO APARECE EM 4 LUGARES NESTE ARQUIVO.
-     Se um dia mudar (a votação com os usuários, por exemplo), troque nestes:
-       1. a tag <title> logo abaixo
-       2. a meta og:title
-       3. a barra do topo, classe "marca"
-       4. o título de cada aba, na constante MODULOS
+
+       1. a tag <title> logo abaixo          -> ja e "Nu · Consulta"
+       2. a meta og:title                    -> ja e "Nu · Consulta"
+       3. a barra do topo, classe "marca"    -> ja e "Nu · Consulta"
+       4. o titulo de cada aba, em MODULOS   -> AINDA e "Consulta Bet"
+
+     PENDENTE (decisao de 29/09/2026: adiado de proposito, para a troca
+     de nome ser gradual e nao chamar atencao no lancamento da v2).
+
+     Quando for a hora, na constante MODULOS troque:
+
+         titulo: 'Consulta <span class="destaque">Bet</span>',
+       por
+         titulo: 'Casas de <span class="destaque">Apostas</span>',
+
+     Motivo: com a marca na barra do topo, o titulo grande passa a
+     descrever QUAL BASE voce esta vendo -- que e o que a aba de
+     Instituicoes de Pagamento ja faz. Hoje as duas seguem logicas
+     diferentes, e a palavra "Consulta" aparece duas vezes na tela.
      ========================================================================== -->
-<title>Nu · Consulta Bet</title>
+<title>Nu · Consulta</title>
 
 <meta name="description" content="Consulte a situação de uma casa de apostas na lista oficial do Governo Federal e de uma Instituição de Pagamento na base do Banco Central.">
 <meta name="theme-color" content="#0A0A0F">
 
 <meta property="og:type" content="website">
-<meta property="og:title" content="Nu · Consulta Bet">
+<meta property="og:title" content="Nu · Consulta">
 <meta property="og:description" content="Casas de apostas (SPA/MF) e Instituições de Pagamento (BCB). Consulte por marca ou CNPJ.">
 <meta property="og:locale" content="pt_BR">
 <meta name="twitter:card" content="summary">
@@ -649,7 +663,7 @@ footer a:hover { color: var(--roxo); }
   <!-- =================================================== BARRA SUPERIOR -->
   <div class="barra-topo">
     <div class="barra-topo-interna">
-      <div class="marca"><span class="marca-ponto"></span> Nu · Consulta Bet</div>
+      <div class="marca"><span class="marca-ponto"></span> Nu · Consulta</div>
       <div class="topo-direita">
         <a class="link-fonte" id="linkFonte" href="#" target="_blank" rel="noopener noreferrer">
           Fonte: <b id="linkFonteTexto">—</b>
