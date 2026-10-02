@@ -1,0 +1,140 @@
+# =============================================================================
+#  VIGIA DAS LISTAS DO GAFI
+# -----------------------------------------------------------------------------
+#  Este robo nao atualiza nada. Ele so olha a pagina do COAF uma vez por
+#  semana e abre uma issue se ela mudou -- ou se o calendario diz que ja
+#  passou da plenaria e a base continua na anterior.
+#
+#  A atualizacao em si e manual, e leva cinco minutos, tres vezes por ano:
+#
+#    1. abrir o gerar_gafi.py
+#    2. mexer nas listas ACAO_CONTRAMEDIDAS / ACAO_DILIGENCIA / MONITORAMENTO
+#       e na data da PLENARIA, no topo do arquivo
+#    3. rodar  python3 gerar_gafi.py
+#    4. subir o gafi.json novo
+#
+#  Raspar 25 nomes de pais de uma pagina de texto seria codigo fragil
+#  defendendo um ganho pequeno. Vigiar custa quase nada e nao quebra.
+# =============================================================================
+
+name: Vigiar listas do GAFI (COAF)
+
+on:
+  schedule:
+    # Segundas, 09:20 de Brasilia (12:20 UTC). Depois dos outros dois
+    # robos, para nao disputar o runner com eles.
+    - cron: '20 12 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  vigiar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar o repositorio
+        uses: actions/checkout@v5
+
+      - name: Configurar o Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Instalar dependencias
+        run: pip install --quiet requests
+
+      - name: Conferir a pagina do COAF
+        id: vigia
+        run: python vigiar_gafi.py
+
+      - name: Guardar a impressao digital
+        if: always()
+        run: |
+          if [ -z "$(git status --porcelain -- gafi_vigia.json)" ]; then
+            echo "Nada a commitar."
+            exit 0
+          fi
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add gafi_vigia.json
+          git commit -m "Vigia do GAFI: conferido em $(date +%d/%m/%Y)"
+          git push
+
+      # =====================================================================
+      #  O AVISO
+      # ---------------------------------------------------------------------
+      #  Issue, e nao Pull Request: nao ha nada para revisar, ha algo para
+      #  ir olhar. E a issue manda e-mail, que e como voce fica sabendo.
+      # =====================================================================
+      - name: Avisar que vale conferir
+        if: steps.vigia.outputs.mudou == 'sim'
+        continue-on-error: true
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const motivo = `${{ steps.vigia.outputs.motivo }}`;
+            const hoje = new Date().toLocaleDateString('pt-BR', {
+              timeZone: 'America/Sao_Paulo'
+            });
+
+            // Se ja existe uma issue aberta sobre isso, comenta nela em vez
+            // de abrir outra. Caixa de entrada com cinco avisos iguais
+            // vira caixa de entrada que ninguem le.
+            const abertas = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'gafi',
+            });
+
+            const corpo = [
+              `**Vale conferir as listas do GAFI.** Motivo: ${motivo}.`,
+              '',
+              '[Comunicados do GAFI no COAF](https://www.gov.br/coaf/pt-br/assuntos/informacoes-as-pessoas-obrigadas/avisos-e-alertas/comunicados-do-gafi)',
+              '',
+              '### Se as listas mudaram',
+              '',
+              '1. Abra o `gerar_gafi.py`',
+              '2. Ajuste `ACAO_CONTRAMEDIDAS`, `ACAO_DILIGENCIA`, `MONITORAMENTO` e a `PLENARIA`',
+              '3. Rode `python3 gerar_gafi.py`',
+              '4. Suba o `gafi.json` novo',
+              '',
+              '### Se nao mudaram',
+              '',
+              'Feche esta issue. A pagina do COAF pode ter mudado por outro',
+              'motivo (um comunicado novo, um texto reescrito) sem que as',
+              'listas de paises tenham mudado.',
+              '',
+              '> Aviso automatico. O robo nao le as listas -- ele so percebe',
+              '> que a pagina mudou. Quem confere e voce.',
+            ].join('\n');
+
+            if (abertas.data.length) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: abertas.data[0].number,
+                body: `Conferido de novo em ${hoje}: ${motivo}.`,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Conferir as listas do GAFI - ${hoje}`,
+                labels: ['gafi'],
+                body: corpo,
+              });
+            }
+
+      - name: Avisar no Slack
+        if: steps.vigia.outputs.mudou == 'sim'
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          URL_SITE: ${{ vars.URL_SITE }}
+          MODO_SLACK: ${{ vars.MODO_SLACK }}
+          DESFECHO: "Vale conferir as listas do GAFI: ${{ steps.vigia.outputs.motivo }}"
+        run: python avisar_slack.py execucao
