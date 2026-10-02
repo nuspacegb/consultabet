@@ -1,10 +1,10 @@
 {
   "meta": {
     "fonte": "https://dadosabertos.bcb.gov.br/dataset/dados-cadastrais-de-entidades-autorizadas",
-    "api": "https://olinda.bcb.gov.br/olinda/servico/BcBase/versao/v2/odata/EntidadesSupervisionadas(dataBase=@dataBase)?@dataBase='09/30/2026'&$format=json&$top=5000&$filter=descricaoTipoEntidadeSupervisionada%20eq%20'Institui%C3%A7%C3%A3o%20de%20Pagamento'",
-    "data_base": "2026-09-30",
-    "verificado_em": "30/09/2026 14:00",
-    "verificado_em_iso": "2026-09-30T14:00:15-03:00",
+    "api": "https://olinda.bcb.gov.br/olinda/servico/BcBase/versao/v2/odata/EntidadesSupervisionadas(dataBase=@dataBase)?@dataBase='10/01/2026'&$format=json&$top=5000&$filter=descricaoTipoEntidadeSupervisionada%20eq%20'Institui%C3%A7%C3%A3o%20de%20Pagamento'",
+    "data_base": "2026-10-01",
+    "verificado_em": "01/10/2026 14:29",
+    "verificado_em_iso": "2026-10-01T14:29:50-03:00",
     "total": 213,
     "por_status": {
       "autorizada": 194,
@@ -444,7 +444,7 @@
       "codigo_bacen": "Z9243478"
     },
     {
-      "cnpj": "03.130.170/0008-55",
+      "cnpj": "03.130.170/0012-31",
       "cnpj_raiz": "03130170",
       "razao_social": "BRASIL CARD INSTITUIÇÃO DE PAGAMENTOS LTDA",
       "nomes": "BRASIL CARD IP LTDA, BRASIL CARD",
@@ -600,7 +600,7 @@
       "codigo_bacen": "Z9002599"
     },
     {
-      "cnpj": "01.027.058/0001-91",
+      "cnpj": "01.027.058/0004-34",
       "cnpj_raiz": "01027058",
       "razao_social": "CIELO S.A. - INSTITUIÇÃO DE PAGAMENTO",
       "nomes": "CIELO IP S.A.",
@@ -938,7 +938,7 @@
       "codigo_bacen": "Z9047564"
     },
     {
-      "cnpj": "17.887.874/0002-96",
+      "cnpj": "17.887.874/0001-05",
       "cnpj_raiz": "17887874",
       "razao_social": "ENTREPAY INSTITUICAO DE PAGAMENTO S.A - EM LIQUIDAÇÃO EXTRAJUDICIAL",
       "nomes": "ENTREPAY IP S.A. - EM LIQUIDAÇÃO EXTRAJUDICIAL, ENTREPAY - EM LIQUIDAÇÃO EXTRAJUDICIAL",
@@ -1211,7 +1211,7 @@
       "codigo_bacen": "Z9095498"
     },
     {
-      "cnpj": "19.468.242/0002-13",
+      "cnpj": "19.468.242/0001-32",
       "cnpj_raiz": "19468242",
       "razao_social": "IFOOD PAGO INSTITUIÇÃO DE PAGAMENTO S.A.",
       "nomes": "IFOOD PAGO IP, ZOOP TECNOLOGIA & INSTITUIÇÃO DE PAGAMENTO S.A.",
@@ -1679,7 +1679,7 @@
       "codigo_bacen": "Z9031293"
     },
     {
-      "cnpj": "01.648.418/0001-72",
+      "cnpj": "01.648.418/0004-15",
       "cnpj_raiz": "01648418",
       "razao_social": "NSTECH IP INSTITUICAO DE PAGAMENTO S.A.",
       "nomes": "NSTECH IP S.A.",
@@ -1692,7 +1692,7 @@
       "codigo_bacen": "Z9262566"
     },
     {
-      "cnpj": "18.236.120/0009-05",
+      "cnpj": "18.236.120/0001-58",
       "cnpj_raiz": "18236120",
       "razao_social": "NU PAGAMENTOS S.A. - INSTITUIÇÃO DE PAGAMENTO",
       "nomes": "NU PAGAMENTOS - IP, NUBANK",
@@ -1874,7 +1874,7 @@
       "codigo_bacen": "Z9111888"
     },
     {
-      "cnpj": "08.561.701/0193-92",
+      "cnpj": "08.561.701/0139-47",
       "cnpj_raiz": "08561701",
       "razao_social": "PAGSEGURO INTERNET INSTITUIÇÃO DE PAGAMENTO S.A.",
       "nomes": "PAGSEGURO INTERNET IP S.A., PAGSEGURO",
@@ -2212,7 +2212,7 @@
       "codigo_bacen": "Z9347664"
     },
     {
-      "cnpj": "01.425.787/0110-50",
+      "cnpj": "01.425.787/0113-00",
       "cnpj_raiz": "01425787",
       "razao_social": "REDECARD INSTITUIÇÃO DE PAGAMENTO S.A.",
       "nomes": "REDECARD IP",
@@ -2303,7 +2303,7 @@
       "codigo_bacen": "Z9118774"
     },
     {
-      "cnpj": "04.088.208/0001-65",
+      "cnpj": "04.088.208/0072-59",
       "cnpj_raiz": "04088208",
       "razao_social": "SEM PARAR INSTITUICAO DE PAGAMENTO LTDA",
       "nomes": "SEM PARAR IP",
@@ -2368,7 +2368,7 @@
       "codigo_bacen": "Z9478979"
     },
     {
-      "cnpj": "37.470.405/0002-84",
+      "cnpj": "37.470.405/0001-01",
       "cnpj_raiz": "37470405",
       "razao_social": "SMART SOLUTIONS GROUP INSTITUICAO DE PAGAMENTO LTDA",
       "nomes": "SMART SOLUTIONS GROUP IP LTDA, SMART SOLUTIONS",
@@ -2459,7 +2459,7 @@
       "codigo_bacen": "Z9150179"
     },
     {
-      "cnpj": "16.668.076/0004-72",
+      "cnpj": "16.668.076/0001-20",
       "cnpj_raiz": "16668076",
       "razao_social": "SUMUP INSTITUICAO DE PAGAMENTO BRASIL LTDA",
       "nomes": "SUMUP IP",
