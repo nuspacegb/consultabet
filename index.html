@@ -691,6 +691,25 @@ footer a:hover { color: var(--roxo); }
   clip: rect(0,0,0,0); white-space: nowrap; border: 0;
 }
 
+/* Aviso regulatório, como uma linha a mais no painel da base — ao lado
+   das datas de publicação e verificação, que é onde o contexto da base já
+   mora. Ganha fundo âmbar para não passar batido, mas em bloco próprio,
+   sem o peso de uma faixa no topo da página. */
+.painel-item.regulatorio {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 4px;
+  padding: 7px 12px;
+  border: 1px solid rgba(251,191,36,.3);
+  border-radius: 8px;
+  background: var(--alerta-fundo);
+  color: var(--texto-alerta);
+  line-height: 1.55;
+}
+.painel-item.regulatorio b { color: var(--alerta); }
+.painel-item.regulatorio a { color: var(--contraste); }
+
 /* ------------------------------------------------------------ GAFI
    A lista de países restritos que abre junto com a aba. Não é resultado
    de busca: é a resposta de abertura, porque são só 25 itens. */
@@ -783,6 +802,7 @@ footer a:hover { color: var(--roxo); }
       <h1 id="heroTitulo"></h1>
       <p id="heroTexto"></p>
     </section>
+
 
     <!-- Em qual base estou procurando -->
     <div class="seletor" role="tablist" aria-label="Escolha a base a consultar">
@@ -931,11 +951,19 @@ const MODULOS = {
     historico: 'historico.json',
     chaveLista: 'empresas',
     subtitulo: 'Consulte a situação de uma plataforma de apostas na lista oficial do Governo Federal.',
+    /* Contexto regulatório, em uma linha dentro do painel da base. Quando
+       a MP for resolvida — aprovada, alterada ou caducada — apague este
+       campo e a linha desaparece, sem mexer em mais nada. O texto longo
+       vive no `rodape`, junto das outras ressalvas. */
+    avisoCurto: `<b>Proibição em vigor desde 25/09/2026</b> — MP 1.394, em
+                 tramitação no Congresso ·
+                 <a href="http://www.in.gov.br/web/dou/-/medida-provisoria-n-1.394-de-25-de-setembro-de-2026-734808521"
+                    target="_blank" rel="noopener noreferrer">ler a MP</a>`,
     placeholder: 'Digite a marca, o CNPJ ou o nome da empresa…',
     rotuloBase: 'casas autorizadas',
     fonteNome: 'gov.br / SPA-MF',
     fonteUrl: 'https://www.gov.br/fazenda/pt-br/composicao/orgaos/secretaria-de-premios-e-apostas/transparencia-ativa-processos-de-autorizacao-de-apostas-de-quota-fixa/empresas-autorizadas',
-    rodape: 'Ferramenta informativa. A fonte oficial e definitiva é a Secretaria de Prêmios e Apostas do Ministério da Fazenda. Em caso de divergência, vale sempre a lista publicada no gov.br.',
+    rodape: 'Ferramenta informativa. A fonte oficial e definitiva é a Secretaria de Prêmios e Apostas do Ministério da Fazenda. Em caso de divergência, vale sempre a lista publicada no gov.br. A Medida Provisória nº 1.394, de 25/09/2026, proibiu a exploração, a oferta e a publicidade de apostas de quota fixa no país; a relação oficial segue publicada pela SPA/MF e esta consulta continua refletindo o que consta nela, o que importa para analisar períodos anteriores à proibição. A medida está em tramitação no Congresso.',
   },
   ips: {
     arquivo: 'ips.json',
@@ -1211,6 +1239,12 @@ function renderizarPainel() {
     if (d.meta.publicado_em)  partes.push(`<span class="painel-item">Publicada em <b>${esc(d.meta.publicado_em)}</b></span>`);
   } else if (d.meta.data_base) {
     partes.push(`<span class="painel-item">Posição do BCB em <b>${esc(dataBr(d.meta.data_base))}</b></span>`);
+  }
+
+  /* Aviso regulatório, quando a base tiver um. Entra como mais um item do
+     painel, com cor de alerta mas sem virar faixa. */
+  if (cfg.avisoCurto) {
+    partes.push(`<span class="painel-item regulatorio">⚠️ ${cfg.avisoCurto}</span>`);
   }
 
   const dias = diasDesdeVerificacao(d.meta);
