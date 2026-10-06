@@ -974,7 +974,13 @@ const MODULOS = {
     rotuloBase: 'instituições na base',
     fonteNome: 'Banco Central',
     fonteUrl: 'https://dadosabertos.bcb.gov.br/dataset/dados-cadastrais-de-entidades-autorizadas',
-    rodape: 'Ferramenta informativa, sem valor de certidão. A base cobre apenas Instituições de Pagamento, incluindo as que o BCB classifica como não sujeitas a autorização — bancos, financeiras, corretoras e instituidores de arranjo de pagamento não aparecem aqui. A fonte oficial é o Banco Central do Brasil.',
+    /* A categoria "não sujeita a autorização" saiu do texto porque a fonte
+       passou a devolvê-la vazia: a Resolução BCB nº 494 a encerrou, e o
+       prazo para pedir autorização venceu em 31/05/2026. O robô continua
+       consultando a categoria, e o cartão sabe explicá-la se alguma
+       reaparecer — mas prometer no rodapé algo que a base não entrega é o
+       tipo de imprecisão que esta ferramenta existe para não cometer. */
+    rodape: 'Ferramenta informativa, sem valor de certidão. A base cobre apenas Instituições de Pagamento supervisionadas pelo Banco Central — bancos, financeiras, corretoras e instituidores de arranjo de pagamento não aparecem aqui. A fonte oficial é o Banco Central do Brasil.',
   },
 };
 
