@@ -1816,7 +1816,11 @@ async function abrirHistorico() {
     const add = h.adicionadas || [];
     const rem = h.removidas || [];
     const alt = h.marcas_alteradas || [];
-    const houve = add.length || rem.length || alt.length;
+    /* Empresas que trocaram de estabelecimento na base (matriz por filial,
+       ou o contrário). Não entraram nem saíram — só mudou qual CNPJ o
+       Banco Central está publicando para elas. */
+    const trocaCnpj = h.cnpj_alterado || [];
+    const houve = add.length || rem.length || alt.length || trocaCnpj.length;
 
     let diasAlt = null;
     if (h.alterado_em_iso) {
@@ -1849,6 +1853,13 @@ async function abrirHistorico() {
         <ul>${rem.map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>`;
       if (alt.length) html += `<div class="bloco-mudanca neutro"><h4 style="color:var(--roxo)">${alt.length} com marcas alteradas</h4>
         <ul>${alt.map(a => `<li><strong style="color:var(--text)">${esc(a.empresa)}</strong>: ${esc(a.antes)} → ${esc(a.depois)}</li>`).join('')}</ul></div>`;
+      if (trocaCnpj.length) html += `<div class="bloco-mudanca neutro">
+        <h4 style="color:var(--roxo)">${trocaCnpj.length} trocaram de estabelecimento</h4>
+        <p style="margin:0 0 8px;font-size:12.5px;color:var(--text-dim)">
+          Mesma empresa, mesma raiz de CNPJ. O Banco Central passou a publicar
+          outro estabelecimento (matriz ou filial). Não entraram nem saíram da base.
+        </p>
+        <ul>${trocaCnpj.map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>`;
     }
 
     const carimbo = aba === 'bets'
