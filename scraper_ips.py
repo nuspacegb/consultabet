@@ -551,12 +551,27 @@ def limpar(registros, contar=False):
     tiver menos registros que a fonte, precisamos saber se foi porque a
     fonte mudou ou porque NOS jogamos algo fora -- e quanto.
     """
-    saida, vistos = [], set()
-    descartes = {"sem_cnpj": 0, "sem_nome": 0, "repetido": 0}
+    descartes = {"sem_cnpj": 0, "sem_nome": 0}
+
+    # ------------------------------------------------------------------
+    #  Uma entrada por EMPRESA, nao por estabelecimento
+    # ------------------------------------------------------------------
+    #  A base do BCB lista estabelecimentos. A Cielo, por exemplo, aparece
+    #  com a matriz (.../0001-91) e com filiais (.../0004-34). Antes o robo
+    #  guardava o primeiro que a API entregasse -- e a ordem da API nao e
+    #  estavel, entao o CNPJ guardado alternava entre execucoes. O
+    #  relatorio lia isso como a empresa saindo e entrando de novo:
+    #  +30 / -30 com os mesmos nomes.
+    #
+    #  A autorizacao do BCB e da pessoa juridica, identificada pela RAIZ do
+    #  CNPJ -- nao de cada estabelecimento. Entao agrupamos por raiz e
+    #  ficamos com um registro por empresa, preferindo sempre a MATRIZ.
+    #  Alem de ser o registro certo para a analise, isso torna a chave
+    #  estavel e o falso alarme desaparece de vez.
+    por_raiz = {}
 
     for r in registros:
-        cnpj = formatar_cnpj(r.get("codigoCNPJ14"))
-        if not cnpj:
+        if not formatar_cnpj(r.get("codigoCNPJ14")):
             descartes["sem_cnpj"] += 1
             continue
 
@@ -565,12 +580,13 @@ def limpar(registros, contar=False):
             descartes["sem_nome"] += 1
             continue
 
-        if item["cnpj"] in vistos:
-            descartes["repetido"] += 1
-            continue
+        raiz = item["cnpj_raiz"]
+        atual = por_raiz.get(raiz)
+        if atual is None or melhor_registro(item, atual):
+            por_raiz[raiz] = item
 
-        vistos.add(item["cnpj"])
-        saida.append(item)
+    saida = list(por_raiz.values())
+    colapsados = len(registros) - sum(descartes.values()) - len(saida)
 
     if contar:
         total = sum(descartes.values())
@@ -578,13 +594,42 @@ def limpar(registros, contar=False):
         if total:
             log(f"  {total} descartado(s): "
                 f"{descartes['sem_cnpj']} sem CNPJ · "
-                f"{descartes['sem_nome']} sem nome · "
-                f"{descartes['repetido']} CNPJ repetido")
+                f"{descartes['sem_nome']} sem nome")
         else:
             log("  nenhum registro descartado")
-        log(f"  {len(saida):,} na base final")
+        if colapsados:
+            log(f"  {colapsados} estabelecimento(s) agrupado(s) na matriz "
+                f"(filial da mesma raiz de CNPJ)")
+        log(f"  {len(saida):,} empresas na base final")
 
     return saida
+
+
+def eh_matriz(cnpj):
+    """Matriz e o estabelecimento 0001. O resto e filial."""
+    digitos = re.sub(r"\D", "", cnpj or "")
+    return len(digitos) == 14 and digitos[8:12] == "0001"
+
+
+def melhor_registro(novo, atual):
+    """
+    Entre dois estabelecimentos da mesma empresa, qual guardar.
+
+    A ordem importa e precisa ser deterministica -- se empatar em todos os
+    critérios e cair no CNPJ, pelo menos o resultado e sempre o mesmo,
+    independente da ordem em que a API entregou.
+    """
+    # 1. A matriz sempre vence.
+    if eh_matriz(novo["cnpj"]) != eh_matriz(atual["cnpj"]):
+        return eh_matriz(novo["cnpj"])
+
+    # 2. Situacao que o site sabe interpretar vence a indefinida -- melhor
+    #    mostrar "cancelada" do que "situacao nao classificada".
+    if (novo["status"] == "indefinida") != (atual["status"] == "indefinida"):
+        return atual["status"] == "indefinida"
+
+    # 3. Desempate estavel.
+    return novo["cnpj"] < atual["cnpj"]
 
 
 # ----------------------------------------------------------------------------
@@ -666,12 +711,37 @@ def rotulo_empresa(e):
     return f"{e['razao_social']} ({e['nomes']})" if e.get("nomes") else e["razao_social"]
 
 
+def raiz_de(e):
+    """A raiz do CNPJ: o que identifica a EMPRESA, nao o estabelecimento."""
+    return e.get("cnpj_raiz") or re.sub(r"\D", "", e.get("cnpj") or "")[:8]
+
+
 def comparar(antes, depois):
-    a = {e["cnpj"]: e for e in antes if e.get("cnpj")}
-    d = {e["cnpj"]: e for e in depois if e.get("cnpj")}
+    """
+    Compara pela RAIZ do CNPJ, nao pelo CNPJ completo.
+
+    O motivo esta registrado em sangue: comparando pelo CNPJ completo, uma
+    empresa que trocou de estabelecimento na base (matriz por filial)
+    aparecia como "+1 entrou" e "-1 saiu" ao mesmo tempo. Num dia isso
+    gerou +30/-30 com os mesmos 30 nomes, e o relatorio ficou inutil.
+
+    Comparar pela raiz responde a pergunta certa -- "esta empresa entrou ou
+    saiu da base?" -- e mudanca de estabelecimento vira uma terceira
+    categoria, que e informacao e nao alarme.
+    """
+    a = {raiz_de(e): e for e in antes if raiz_de(e)}
+    d = {raiz_de(e): e for e in depois if raiz_de(e)}
+
+    trocaram = []
+    for raiz in sorted(set(a) & set(d)):
+        if a[raiz].get("cnpj") != d[raiz].get("cnpj"):
+            trocaram.append(f"{rotulo_empresa(d[raiz])}: "
+                            f"{a[raiz].get('cnpj')} → {d[raiz].get('cnpj')}")
+
     return {
-        "adicionadas": [rotulo_empresa(d[c]) for c in sorted(set(d) - set(a))],
-        "removidas": [rotulo_empresa(a[c]) for c in sorted(set(a) - set(d))],
+        "adicionadas": [rotulo_empresa(d[r]) for r in sorted(set(d) - set(a))],
+        "removidas": [rotulo_empresa(a[r]) for r in sorted(set(a) - set(d))],
+        "cnpj_alterado": trocaram,
     }
 
 
@@ -709,7 +779,8 @@ def salvar(ips, url, agora, data_base=""):
         }, f, ensure_ascii=False, indent=2)
     log(f"  {ARQUIVO_DADOS} gravado ({len(ips)} IPs, data-base {data_base or '?'})")
 
-    houve = bool(mudancas["adicionadas"] or mudancas["removidas"])
+    houve = bool(mudancas["adicionadas"] or mudancas["removidas"]
+                 or mudancas["cnpj_alterado"])
     if houve:
         with open(ARQUIVO_HISTORICO, "w", encoding="utf-8") as f:
             json.dump({
@@ -719,8 +790,13 @@ def salvar(ips, url, agora, data_base=""):
                 **mudancas,
                 "total_adicionadas": len(mudancas["adicionadas"]),
                 "total_removidas": len(mudancas["removidas"]),
+                "total_cnpj_alterado": len(mudancas["cnpj_alterado"]),
             }, f, ensure_ascii=False, indent=2)
         log(f"  {ARQUIVO_HISTORICO} gravado")
+
+    if mudancas["cnpj_alterado"]:
+        log(f"  {len(mudancas['cnpj_alterado'])} empresa(s) trocaram de "
+            f"estabelecimento na base (nao entraram nem sairam)")
 
     resumo = (f"{len(ips)} IPs | +{len(mudancas['adicionadas'])} / "
               f"-{len(mudancas['removidas'])} | data-base {data_base or '?'}")
