@@ -1,10 +1,10 @@
 {
   "meta": {
     "fonte": "https://dadosabertos.bcb.gov.br/dataset/dados-cadastrais-de-entidades-autorizadas",
-    "api": "https://olinda.bcb.gov.br/olinda/servico/BcBase/versao/v2/odata/EntidadesSupervisionadas(dataBase=@dataBase)?@dataBase='10/08/2026'&$format=json&$top=5000&$filter=descricaoTipoEntidadeSupervisionada%20eq%20'Institui%C3%A7%C3%A3o%20de%20Pagamento'",
-    "data_base": "2026-10-08",
-    "verificado_em": "08/10/2026 15:00",
-    "verificado_em_iso": "2026-10-08T15:00:04-03:00",
+    "api": "https://olinda.bcb.gov.br/olinda/servico/BcBase/versao/v2/odata/EntidadesSupervisionadas(dataBase=@dataBase)?@dataBase='10/09/2026'&$format=json&$top=5000&$filter=descricaoTipoEntidadeSupervisionada%20eq%20'Institui%C3%A7%C3%A3o%20de%20Pagamento'",
+    "data_base": "2026-10-09",
+    "verificado_em": "09/10/2026 14:33",
+    "verificado_em_iso": "2026-10-09T14:33:06-03:00",
     "total": 213,
     "por_status": {
       "autorizada": 195,
