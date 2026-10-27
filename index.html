@@ -1308,6 +1308,100 @@ function registrarBuscaVazia(bruto) {
   });
 }
 
+/* ==========================================================================
+   MEDIÇÃO DE CONSULTAS
+   --------------------------------------------------------------------------
+   A busca roda a cada tecla (depois de 160 ms), então "uma busca" não é o
+   mesmo que "uma consulta": digitar um nome gera várias buscas. Uma consulta
+   é contada quando termina de verdade:
+     · o analista COLOU ou digitou e parou por ESPERA_MS, ou
+     · apertou Enter / clicou em Buscar / clicou num atalho ou país.
+   O mesmo termo não é contado duas vezes seguidas; limpar o campo zera isso.
+
+   O que vai para o Analytics (evento "consulta_realizada"):
+     modulo            bets | ips | gafi
+     resultado         encontrado | nao_encontrado   (bets, ips)
+                       com_restricao | sem_restricao | nao_reconhecido | varios (gafi)
+     qtd               quantos resultados apareceram
+     status            situação, quando o resultado é único (ex.: cancelada)
+     metodo            colou | digitou | enter | botao | atalho | chip
+     tempo_ms          do primeiro caractere até parar (colar ≈ 0)
+     consulta_n        1ª, 2ª, 3ª consulta desta visita
+     consulta_no_dia   1ª, 2ª, 3ª consulta do dia neste navegador
+
+   NUNCA vai o termo digitado. O termo só sai no evento antigo de busca sem
+   resultado, que já tem a proteção contra formato de CPF.
+   ========================================================================== */
+const ESPERA_MS = 1200;
+const MEDIDA = { seq: 0, inicio: {}, fim: {}, colou: {}, ultimo: {}, timer: {} };
+let ultimaBusca = null;   // preenchida por buscar()
+let ultimaGafi  = null;   // preenchida por buscarGafi()
+
+function medirReiniciar(m) {
+  clearTimeout(MEDIDA.timer[m]);
+  MEDIDA.ultimo[m] = null;
+  MEDIDA.inicio[m] = 0;
+  MEDIDA.fim[m] = 0;
+  MEDIDA.colou[m] = false;
+}
+
+function medirEntrada(m, ev) {
+  const agora = performance.now();
+  if (!MEDIDA.inicio[m]) MEDIDA.inicio[m] = agora;
+  MEDIDA.fim[m] = agora;
+  if (ev && ev.inputType === 'insertFromPaste') MEDIDA.colou[m] = true;
+}
+
+function medirAgendar(m, fornecedor) {
+  clearTimeout(MEDIDA.timer[m]);
+  MEDIDA.timer[m] = setTimeout(() => registrarConsulta(m, fornecedor(), ''), ESPERA_MS);
+}
+
+function medirAgora(m, fornecedor, origem) {
+  clearTimeout(MEDIDA.timer[m]);
+  registrarConsulta(m, fornecedor(), origem);
+}
+
+function consultasHoje() {
+  try {
+    const hoje = new Date().toLocaleDateString('en-CA');
+    const r = JSON.parse(localStorage.getItem('nc_dia') || 'null');
+    const n = (r && r.d === hoje ? r.n : 0) + 1;
+    localStorage.setItem('nc_dia', JSON.stringify({ d: hoje, n }));
+    return n;
+  } catch { return 0; }              // sem memória do navegador: só omite o campo
+}
+
+function registrarConsulta(m, info, origem) {
+  if (typeof gtag !== 'function' || !info) return;
+  if (MEDIDA.ultimo[m] === info.termo) return;     // mesma consulta, já contada
+  MEDIDA.ultimo[m] = info.termo;
+
+  const params = {
+    modulo: m,
+    resultado: info.resultado,
+    qtd: info.n,
+    status: info.status || '',
+    metodo: MEDIDA.colou[m] ? 'colou' : (origem || 'digitou'),
+    tempo_ms: Math.max(0, Math.round((MEDIDA.fim[m] || 0) - (MEDIDA.inicio[m] || 0))),
+    consulta_n: ++MEDIDA.seq,
+  };
+  const hoje = consultasHoje();
+  if (hoje) params.consulta_no_dia = hoje;
+  gtag('event', 'consulta_realizada', params);
+
+  MEDIDA.inicio[m] = 0; MEDIDA.fim[m] = 0; MEDIDA.colou[m] = false;
+}
+
+function infoBusca() {
+  const t = normalizar(campo.value.trim());
+  return (ultimaBusca && ultimaBusca.modulo === aba && ultimaBusca.termo === t) ? ultimaBusca : null;
+}
+function infoGafi() {
+  const t = normalizar($('campoGafi').value.trim());
+  return (ultimaGafi && ultimaGafi.termo === t) ? ultimaGafi : null;
+}
+
 function buscar() {
   const d = dados[aba];
   if (d.estado !== Estado.PRONTO) return;
@@ -1323,6 +1417,13 @@ function buscar() {
   }
 
   const achados = d.lista.filter(e => e._busca.includes(termo));
+
+  ultimaBusca = {
+    modulo: aba, termo,
+    n: achados.length,
+    resultado: achados.length ? 'encontrado' : 'nao_encontrado',
+    status: achados.length === 1 ? (achados[0].status || '') : '',
+  };
 
   if (achados.length) {
     achados.sort((a, b) => pontuar(b, termo) - pontuar(a, termo));
@@ -1412,6 +1513,15 @@ function buscarGafi() {
   const exato = achados.filter(p =>
     normalizar(p.alpha3) === termo || normalizar(p.alpha2) === termo);
   if (exato.length) achados = exato;
+
+  ultimaGafi = {
+    modulo: 'gafi', termo,
+    n: achados.length,
+    resultado: achados.length === 0 ? 'nao_reconhecido'
+             : achados.length > 1 ? 'varios'
+             : (achados[0].situacao === 'nao_listado' ? 'sem_restricao' : 'com_restricao'),
+    status: achados.length === 1 ? (achados[0].situacao || '') : '',
+  };
 
   if (!achados.length) { alvo.innerHTML = gafiNaoReconhecido(bruto); return; }
 
@@ -1963,16 +2073,21 @@ function alternarTema() {
    ========================================================================== */
 
 let temporizador;
-campo.addEventListener('input', () => {
+campo.addEventListener('input', ev => {
   btnLimpar.classList.toggle('visivel', campo.value.length > 0);
   clearTimeout(temporizador);
   temporizador = setTimeout(buscar, 160);
+  if (campo.value.trim().length < 2) medirReiniciar(aba);
+  else { medirEntrada(aba, ev); medirAgendar(aba, infoBusca); }
 });
 campo.addEventListener('keydown', e => {
-  if (e.key === 'Enter') { clearTimeout(temporizador); buscar(); }
+  if (e.key === 'Enter') { clearTimeout(temporizador); buscar(); medirAgora(aba, infoBusca, 'enter'); }
 });
-btnBuscar.addEventListener('click', () => { clearTimeout(temporizador); buscar(); });
+btnBuscar.addEventListener('click', () => {
+  clearTimeout(temporizador); buscar(); medirAgora(aba, infoBusca, 'botao');
+});
 btnLimpar.addEventListener('click', () => {
+  medirReiniciar(aba);
   campo.value = '';
   btnLimpar.classList.remove('visivel');
   areaResultado.innerHTML = '';
@@ -2005,12 +2120,19 @@ $('btnGafi').addEventListener('click', () => {
   setTimeout(() => $('campoGafi').focus(), 60);
 });
 
-$('campoGafi').addEventListener('input', buscarGafi);
+$('campoGafi').addEventListener('input', ev => {
+  buscarGafi();
+  if ($('campoGafi').value.trim().length < 2) medirReiniciar('gafi');
+  else { medirEntrada('gafi', ev); medirAgendar('gafi', infoGafi); }
+});
 $('campoGafi').addEventListener('keydown', ev => {
   if (ev.key === 'Escape' && $('campoGafi').value) {
     ev.stopPropagation();               // primeiro Esc limpa, não fecha
     $('campoGafi').value = '';
+    medirReiniciar('gafi');
     buscarGafi();
+  } else if (ev.key === 'Enter') {
+    medirAgora('gafi', infoGafi, 'enter');
   }
 });
 
@@ -2021,6 +2143,7 @@ $('resultadoGafi').addEventListener('click', ev => {
   if (!chip) return;
   $('campoGafi').value = chip.dataset.pais || '';
   buscarGafi();
+  medirAgora('gafi', infoGafi, 'chip');
   $('campoGafi').focus();
 });
 
@@ -2040,6 +2163,7 @@ document.addEventListener('click', e => {
   if (!alvo) return;
   campo.value = alvo.dataset.busca;
   buscar();
+  medirAgora(aba, infoBusca, 'atalho');
   campo.scrollIntoView({ block: 'center', behavior: 'smooth' });
 });
 document.addEventListener('keydown', e => {
