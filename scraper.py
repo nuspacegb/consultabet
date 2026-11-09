@@ -229,7 +229,7 @@ def eh_erro_de_rede(erro):
     return any(marca in texto for marca in ERROS_DE_REDE)
 
 
-def baixar(url, tentativas=6):
+def baixar(url, tentativas=6, aceitar_404=False):
     """
     Baixa uma pagina, com espera crescente entre as tentativas.
 
@@ -239,12 +239,14 @@ def baixar(url, tentativas=6):
     SEM tratar como falha. Amanha tenta de novo.
     """
     ultimo_erro = None
+    codigos = []          # codigo HTTP de cada tentativa (vazio se nem conectou)
     esperas = [3, 8, 15, 25, 40]
 
     for n in range(1, tentativas + 1):
         try:
             log(f"  Tentativa {n}/{tentativas}: {url}")
             resp = requests.get(url, headers=CABECALHO_HTTP, timeout=TIMEOUT)
+            codigos.append(resp.status_code)
 
             if resp.status_code == 200 and len(resp.text) > 5000:
                 resp.encoding = resp.apparent_encoding or "utf-8"
@@ -266,6 +268,14 @@ def baixar(url, tentativas=6):
             espera = esperas[min(n - 1, len(esperas) - 1)]
             log(f"  Aguardando {espera}s antes de tentar de novo...")
             time.sleep(espera)
+
+    # ---- A pagina saiu do ar? ----
+    # So conta se TODAS as tentativas responderam 404. Um 404 isolado no meio
+    # de timeouts e outros erros nao prova nada. Quem chama decide o que fazer
+    # com o None -- e so a fonte judicial pede isso (aceitar_404=True).
+    if aceitar_404 and len(codigos) == tentativas and all(c == 404 for c in codigos):
+        log("  A pagina respondeu 404 em todas as tentativas: nao esta mais no ar.")
+        return None
 
     # ---- Desistiu. Agora decide se isso e alarme ou nao. ----
     if eh_erro_de_rede(ultimo_erro):
@@ -519,6 +529,59 @@ def carregar_base_anterior():
     return []
 
 
+def carregar_meta_anterior():
+    """Le o bloco 'meta' do dados.json que esta no ar (vazio se nao houver)."""
+    try:
+        with open(ARQUIVO_DADOS, "r", encoding="utf-8") as f:
+            dados = json.load(f)
+        if isinstance(dados, dict):
+            return dados.get("meta", {}) or {}
+    except Exception:  # noqa: BLE001
+        pass
+    return {}
+
+
+def recuperar_judiciais(base_anterior, meta_anterior, agora):
+    """
+    A pagina das autorizadas por decisao judicial saiu do ar (404).
+
+    NAO apagamos essas empresas -- nao temos como saber se continuam
+    autorizadas, e sumir com elas diria "nao consta" sem base para isso. Mas
+    tambem nao podemos mante-las como se estivessem confirmadas. Entao ficam
+    na base marcadas com duas datas, que o site mostra no cartao:
+
+      fonte_indisponivel_desde  primeira verificacao em que a pagina nao
+                                existia. Fica fixa enquanto a pagina estiver
+                                fora do ar (nao muda a cada execucao).
+      ultima_confirmacao        ultima vez em que a pagina foi lida com
+                                sucesso (a verificacao anterior a queda).
+
+    Quando a pagina voltar, as empresas vem frescas da raspagem, sem essas
+    marcas, e o aviso some sozinho.
+    """
+    hoje = agora.strftime("%d/%m/%Y")
+    ja_indisponivel = bool(meta_anterior.get("judicial_indisponivel"))
+
+    if ja_indisponivel:
+        desde = meta_anterior.get("judicial_indisponivel_desde") or hoje
+        confirmada = meta_anterior.get("judicial_ultima_confirmacao")
+    else:
+        desde = hoje
+        confirmada = (meta_anterior.get("verificado_em") or "")[:10] or None
+
+    mantidas = []
+    for e in base_anterior:
+        if e.get("origem") != "judicial":
+            continue
+        c = dict(e)
+        c["fonte_indisponivel"] = True
+        c["fonte_indisponivel_desde"] = desde
+        c["ultima_confirmacao"] = confirmada
+        mantidas.append(c)
+
+    return mantidas, {"desde": desde, "ultima_confirmacao": confirmada}
+
+
 def rotulo(empresa):
     marcas = empresa.get("marcas", "")
     nome = empresa.get("razao_social", "?")
@@ -597,11 +660,30 @@ def main():
     # ---------- 2. Autorizadas por determinacao judicial ----------
     log("")
     log("[2/5] Lendo autorizadas por determinacao judicial...")
-    html_jud = baixar(URL_JUDICIAIS)
-    soup_jud = BeautifulSoup(html_jud, "html.parser")
-    datas_jud = extrair_datas(soup_jud, "autorizadas por determinacao judicial")
-    jud = limpar_registros(ler_tabelas(soup_jud, "judicial"))
-    log(f"  -> {len(jud)} empresas encontradas")
+    base_anterior = carregar_base_anterior()
+    meta_anterior = carregar_meta_anterior()
+
+    html_jud = baixar(URL_JUDICIAIS, aceitar_404=True)
+    jud_indisponivel = html_jud is None
+    info_indisponivel = {}
+
+    if jud_indisponivel:
+        # Plano B: so a fonte judicial pode faltar. Qualquer outro erro (lista
+        # principal fora do ar, tabela com outro formato) continua parando tudo.
+        jud, info_indisponivel = recuperar_judiciais(base_anterior, meta_anterior, agora)
+        datas_jud = {
+            "publicado_em": meta_anterior.get("publicado_em_judicial"),
+            "atualizado_em": meta_anterior.get("atualizado_em_judicial"),
+        }
+        log(f"  AVISO: pagina judicial fora do ar desde {info_indisponivel['desde']} "
+            f"(ultima leitura com sucesso: {info_indisponivel['ultima_confirmacao'] or 'desconhecida'}).")
+        log(f"  -> mantidas {len(jud)} empresa(s) do ultimo estado, marcadas como "
+            f"'fonte indisponivel'.")
+    else:
+        soup_jud = BeautifulSoup(html_jud, "html.parser")
+        datas_jud = extrair_datas(soup_jud, "autorizadas por determinacao judicial")
+        jud = limpar_registros(ler_tabelas(soup_jud, "judicial"))
+        log(f"  -> {len(jud)} empresas encontradas")
 
     # ---------- 3. TRAVAS DE SEGURANCA ----------
     log("")
@@ -614,11 +696,10 @@ def main():
             f"ou o formato da tabela."
         )
 
-    if len(jud) == 0:
+    if len(jud) == 0 and not jud_indisponivel:
         log("  AVISO: nenhuma empresa judicial encontrada. Pode ser correto "
             "(liminares caem), mas vale conferir na mao.")
 
-    base_anterior = carregar_base_anterior()
     total_novo = len(adm) + len(jud)
 
     if base_anterior:
@@ -669,6 +750,9 @@ def main():
             "total": total_novo,
             "total_administrativas": len(adm),
             "total_judiciais": len(jud),
+            "judicial_indisponivel": jud_indisponivel,
+            "judicial_indisponivel_desde": info_indisponivel.get("desde"),
+            "judicial_ultima_confirmacao": info_indisponivel.get("ultima_confirmacao"),
         },
         "empresas": sorted(empresas, key=lambda e: sem_acento(e["razao_social"])),
     }
@@ -740,6 +824,10 @@ def main():
             f"{total_novo} empresas | mesmas casas, dados atualizados | "
             f"gov.br atualizado em {datas_adm['atualizado_em']}"
         )
+
+    if jud_indisponivel:
+        resumo += (f" | AVISO: pagina judicial fora do ar desde "
+                   f"{info_indisponivel['desde']}, {len(jud)} empresa(s) mantida(s)")
 
     avisar_workflow(
         resultado="ok",
