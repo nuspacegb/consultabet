@@ -6,11 +6,14 @@
     "atualizado_em": "09/10/2026 15h31",
     "publicado_em_judicial": "20/07/2026 17h29",
     "atualizado_em_judicial": "01/10/2026 15h45",
-    "verificado_em": "06/11/2026 16:15",
-    "verificado_em_iso": "2026-11-06T16:15:22-03:00",
+    "verificado_em": "09/11/2026 19:41",
+    "verificado_em_iso": "2026-11-09T19:41:11-03:00",
     "total": 87,
     "total_administrativas": 85,
-    "total_judiciais": 2
+    "total_judiciais": 2,
+    "judicial_indisponivel": true,
+    "judicial_indisponivel_desde": "09/11/2026",
+    "judicial_ultima_confirmacao": "06/11/2026"
   },
   "empresas": [
     {
@@ -870,7 +873,10 @@
       "dominio": "zeroum.bet, energia.bet, sportvip.bet",
       "portaria": "5007941-50.2025.4.03.6100, em trâmite na 14ª Vara Federal Cível da Seção Judiciária de São Paulo",
       "requerimento": "",
-      "origem": "judicial"
+      "origem": "judicial",
+      "fonte_indisponivel": true,
+      "fonte_indisponivel_desde": "09/11/2026",
+      "ultima_confirmacao": "06/11/2026"
     },
     {
       "cnpj": "57.163.072/0001-77",
@@ -879,7 +885,10 @@
       "dominio": "zonadejogo.bet.br, apostaonline.bet.br, onlybets.bet.br",
       "portaria": "1096849-60.2025.4.01.3400, em trâmite na 4ª Vara Federal Cível da Seção Judiciária do Distrito Federal",
       "requerimento": "",
-      "origem": "judicial"
+      "origem": "judicial",
+      "fonte_indisponivel": true,
+      "fonte_indisponivel_desde": "09/11/2026",
+      "ultima_confirmacao": "06/11/2026"
     }
   ]
 }
