@@ -1611,12 +1611,30 @@ function pontuar(e, termo) {
 /* ------------------------------------------------------------ cartão: bets */
 function cartaoBet(e, termo) {
   const judicial = e.origem === 'judicial' || /judicial|liminar/i.test(e.portaria || '');
-  const selo = judicial
-    ? '<span class="selo alerta"><span class="selo-ponto"></span> Autorizada por decisão judicial</span>'
-    : '<span class="selo ok"><span class="selo-ponto"></span> Autorizada</span>';
-  const nota = judicial
-    ? `<p class="texto-estado" style="font-size:13.5px">Opera por liminar, durante o período de adaptação. Para fins legais, tem os mesmos direitos e deveres de uma empresa autorizada administrativamente.</p>`
-    : '';
+
+  /* Fonte oficial fora do ar. A página da SPA/MF que listava as autorizadas
+     por decisão judicial deixou de existir; a empresa foi mantida na base,
+     mas NÃO como confirmada. As datas vêm do robô: a primeira verificação em
+     que a página não foi encontrada e a última leitura bem-sucedida. */
+  const semFonte = !!e.fonte_indisponivel;
+
+  const selo = semFonte
+    ? '<span class="selo alerta"><span class="selo-ponto"></span> Situação não confirmada</span>'
+    : judicial
+      ? '<span class="selo alerta"><span class="selo-ponto"></span> Autorizada por decisão judicial</span>'
+      : '<span class="selo ok"><span class="selo-ponto"></span> Autorizada</span>';
+
+  const nota = semFonte
+    ? `<div class="aviso-grave" style="background:var(--alerta-fundo);border-color:rgba(251,191,36,.35);color:var(--texto-alerta)">
+         <strong>A fonte oficial desta empresa saiu do ar.</strong>
+         Ela constava na página de autorizadas por decisão judicial da SPA/MF,
+         que não foi encontrada na verificação de <b>${esc(e.fonte_indisponivel_desde || '—')}</b>${
+           e.ultima_confirmacao ? ` (última leitura com sucesso: ${esc(e.ultima_confirmacao)})` : ''}.
+         Não há como confirmar hoje se continua autorizada. Confirme direto na SPA/MF antes de decidir.
+       </div>`
+    : judicial
+      ? `<p class="texto-estado" style="font-size:13.5px">Opera por liminar, durante o período de adaptação. Para fins legais, tem os mesmos direitos e deveres de uma empresa autorizada administrativamente.</p>`
+      : '';
   const linkDoc = e.documento_url
     ? ` <a href="${esc(e.documento_url)}" target="_blank" rel="noopener noreferrer">ver ato ↗</a>` : '';
 
