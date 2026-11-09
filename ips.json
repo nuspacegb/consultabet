@@ -1,13 +1,13 @@
 {
   "meta": {
     "fonte": "https://dadosabertos.bcb.gov.br/dataset/dados-cadastrais-de-entidades-autorizadas",
-    "api": "https://olinda.bcb.gov.br/olinda/servico/BcBase/versao/v2/odata/EntidadesSupervisionadas(dataBase=@dataBase)?@dataBase='11/06/2026'&$format=json&$top=5000&$filter=descricaoTipoEntidadeSupervisionada%20eq%20'Institui%C3%A7%C3%A3o%20de%20Pagamento'",
-    "data_base": "2026-11-06",
-    "verificado_em": "06/11/2026 15:29",
-    "verificado_em_iso": "2026-11-06T15:29:22-03:00",
-    "total": 213,
+    "api": "https://olinda.bcb.gov.br/olinda/servico/BcBase/versao/v2/odata/EntidadesSupervisionadas(dataBase=@dataBase)?@dataBase='11/09/2026'&$format=json&$top=5000&$filter=descricaoTipoEntidadeSupervisionada%20eq%20'Institui%C3%A7%C3%A3o%20de%20Pagamento'",
+    "data_base": "2026-11-09",
+    "verificado_em": "09/11/2026 18:37",
+    "verificado_em_iso": "2026-11-09T18:37:48-03:00",
+    "total": 212,
     "por_status": {
-      "autorizada": 194,
+      "autorizada": 193,
       "cancelada": 14,
       "autorizada_sem_atividade": 5
     },
@@ -444,7 +444,7 @@
       "codigo_bacen": "Z9243478"
     },
     {
-      "cnpj": "03.130.170/0012-31",
+      "cnpj": "03.130.170/0011-50",
       "cnpj_raiz": "03130170",
       "razao_social": "BRASIL CARD INSTITUIÇÃO DE PAGAMENTOS LTDA",
       "nomes": "BRASIL CARD IP LTDA, BRASIL CARD",
@@ -470,7 +470,7 @@
       "codigo_bacen": "Z9081833"
     },
     {
-      "cnpj": "09.437.293/0021-97",
+      "cnpj": "09.437.293/0001-43",
       "cnpj_raiz": "09437293",
       "razao_social": "BRINKS PAY INSTITUICAO DE PAGAMENTO LTDA",
       "nomes": "BRINKS PAY IP LTDA., BRINKS PAY",
@@ -522,7 +522,7 @@
       "codigo_bacen": "Z9581347"
     },
     {
-      "cnpj": "39.696.395/0001-44",
+      "cnpj": "39.696.395/0016-20",
       "cnpj_raiz": "39696395",
       "razao_social": "CACTVS INSTITUICAO DE PAGAMENTO S.A",
       "nomes": "CACTVS IP S.A.",
@@ -535,7 +535,7 @@
       "codigo_bacen": "Z9202348"
     },
     {
-      "cnpj": "08.611.734/0003-80",
+      "cnpj": "08.611.734/0001-19",
       "cnpj_raiz": "08611734",
       "razao_social": "CALCARD S.A. - INSTITUIÇÃO DE PAGAMENTOS",
       "nomes": "CALCARD S.A. IP, OUZE",
@@ -600,7 +600,7 @@
       "codigo_bacen": "Z9002599"
     },
     {
-      "cnpj": "01.027.058/0004-34",
+      "cnpj": "01.027.058/0005-15",
       "cnpj_raiz": "01027058",
       "razao_social": "CIELO S.A. - INSTITUIÇÃO DE PAGAMENTO",
       "nomes": "CIELO IP S.A.",
@@ -626,20 +626,7 @@
       "codigo_bacen": "Z9082748"
     },
     {
-      "cnpj": "34.878.543/0001-28",
-      "cnpj_raiz": "34878543",
-      "razao_social": "CLARO PAY S.A. - INSTITUIÇÃO DE PAGAMENTO",
-      "nomes": "CLARO PAY S.A. IP",
-      "tipo": "Instituição de Pagamento",
-      "natureza_juridica": "Sociedade Anônima de Capital Fechado",
-      "situacao": "Autorizada em Atividade",
-      "status": "autorizada",
-      "municipio": "São Paulo",
-      "uf": "São Paulo",
-      "codigo_bacen": "Z9215264"
-    },
-    {
-      "cnpj": "18.189.547/0001-42",
+      "cnpj": "18.189.547/0002-23",
       "cnpj_raiz": "18189547",
       "razao_social": "CLOUDWALK INSTITUIÇÃO DE PAGAMENTO E SERVICOS LTDA",
       "nomes": "CLOUDWALK IP LTDA",
@@ -652,7 +639,7 @@
       "codigo_bacen": "Z9215350"
     },
     {
-      "cnpj": "31.531.997/0001-30",
+      "cnpj": "31.531.997/0002-10",
       "cnpj_raiz": "31531997",
       "razao_social": "CONPAY INSTITUIÇÃO DE PAGAMENTO E TECNOLOGIA S.A",
       "nomes": "CONPAY IP S.A.",
@@ -704,7 +691,7 @@
       "codigo_bacen": "Z9638836"
     },
     {
-      "cnpj": "05.938.780/0003-09",
+      "cnpj": "05.938.780/0001-39",
       "cnpj_raiz": "05938780",
       "razao_social": "COOPER CARD INSTITUIÇÃO DE PAGAMENTO LTDA.",
       "nomes": "COOPER CARD IP",
@@ -808,7 +795,7 @@
       "codigo_bacen": "Z9044980"
     },
     {
-      "cnpj": "25.021.356/0001-32",
+      "cnpj": "25.021.356/0002-13",
       "cnpj_raiz": "25021356",
       "razao_social": "DLOCAL BRASIL INSTITUIÇÃO DE PAGAMENTO S.A.",
       "nomes": "DLOCAL BRASIL IP S.A., DLOCAL",
@@ -912,7 +899,7 @@
       "codigo_bacen": "Z9255204"
     },
     {
-      "cnpj": "09.089.356/0002-07",
+      "cnpj": "09.089.356/0001-18",
       "cnpj_raiz": "09089356",
       "razao_social": "EFÍ S.A. - INSTITUIÇÃO DE PAGAMENTO",
       "nomes": "EFÍ S.A. - IP",
@@ -938,7 +925,7 @@
       "codigo_bacen": "Z9047564"
     },
     {
-      "cnpj": "17.887.874/0001-05",
+      "cnpj": "17.887.874/0002-96",
       "cnpj_raiz": "17887874",
       "razao_social": "ENTREPAY INSTITUICAO DE PAGAMENTO S.A - EM LIQUIDAÇÃO EXTRAJUDICIAL",
       "nomes": "ENTREPAY IP S.A. - EM LIQUIDAÇÃO EXTRAJUDICIAL, ENTREPAY - EM LIQUIDAÇÃO EXTRAJUDICIAL",
@@ -977,7 +964,7 @@
       "codigo_bacen": "Z9065984"
     },
     {
-      "cnpj": "38.653.626/0002-50",
+      "cnpj": "38.653.626/0001-70",
       "cnpj_raiz": "38653626",
       "razao_social": "F & F INSTITUICAO DE PAGAMENTO S. A.",
       "nomes": "F&F IP S.A., FF CRED DIGITAL",
@@ -1016,7 +1003,7 @@
       "codigo_bacen": "Z9043000"
     },
     {
-      "cnpj": "05.607.266/0005-44",
+      "cnpj": "05.607.266/0001-10",
       "cnpj_raiz": "05607266",
       "razao_social": "FINNET S/A - TECNOLOGIA E INSTITUICAO DE PAGAMENTO",
       "nomes": "FINNET S/A IP",
@@ -1029,7 +1016,7 @@
       "codigo_bacen": "Z9215375"
     },
     {
-      "cnpj": "04.962.772/0003-27",
+      "cnpj": "04.962.772/0004-08",
       "cnpj_raiz": "04962772",
       "razao_social": "FISERV DO BRASIL  INSTITUIÇÃO DE PAGAMENTO LTDA",
       "nomes": "FISERV DO BRASIL IP, FISERV",
@@ -1042,7 +1029,7 @@
       "codigo_bacen": "Z9616688"
     },
     {
-      "cnpj": "13.203.354/0001-85",
+      "cnpj": "13.203.354/0002-66",
       "cnpj_raiz": "13203354",
       "razao_social": "FITS INSTITUIÇÃO DE PAGAMENTO S.A.",
       "nomes": "FITS IP",
@@ -1159,7 +1146,7 @@
       "codigo_bacen": "Z9115201"
     },
     {
-      "cnpj": "33.630.661/0001-50",
+      "cnpj": "33.630.661/0002-30",
       "cnpj_raiz": "33630661",
       "razao_social": "GOWD INSTITUIÇÃO DE PAGAMENTO LTDA.",
       "nomes": "GOWD IP LTDA., GOWD",
@@ -1211,7 +1198,7 @@
       "codigo_bacen": "Z9095498"
     },
     {
-      "cnpj": "19.468.242/0001-32",
+      "cnpj": "19.468.242/0003-02",
       "cnpj_raiz": "19468242",
       "razao_social": "IFOOD PAGO INSTITUIÇÃO DE PAGAMENTO S.A.",
       "nomes": "IFOOD PAGO IP, ZOOP TECNOLOGIA & INSTITUIÇÃO DE PAGAMENTO S.A.",
@@ -1497,7 +1484,7 @@
       "codigo_bacen": "Z9034494"
     },
     {
-      "cnpj": "32.343.119/0001-53",
+      "cnpj": "32.343.119/0003-15",
       "cnpj_raiz": "32343119",
       "razao_social": "MÊNTORE INSTITUIÇÃO DE PAGAMENTO S.A.",
       "nomes": "MÊNTORE IP S.A., MÊNTORE",
@@ -1523,7 +1510,7 @@
       "codigo_bacen": "Z9157637"
     },
     {
-      "cnpj": "10.573.521/0001-91",
+      "cnpj": "10.573.521/0007-87",
       "cnpj_raiz": "10573521",
       "razao_social": "MERCADO PAGO INSTITUIÇÃO DE PAGAMENTO LTDA.",
       "nomes": "MERCADO PAGO IP LTDA.",
@@ -1692,7 +1679,7 @@
       "codigo_bacen": "Z9262566"
     },
     {
-      "cnpj": "18.236.120/0001-58",
+      "cnpj": "18.236.120/0006-62",
       "cnpj_raiz": "18236120",
       "razao_social": "NU PAGAMENTOS S.A. - INSTITUIÇÃO DE PAGAMENTO",
       "nomes": "NU PAGAMENTOS - IP, NUBANK",
@@ -1874,7 +1861,7 @@
       "codigo_bacen": "Z9111888"
     },
     {
-      "cnpj": "08.561.701/0156-48",
+      "cnpj": "08.561.701/0261-78",
       "cnpj_raiz": "08561701",
       "razao_social": "PAGSEGURO INTERNET INSTITUIÇÃO DE PAGAMENTO S.A.",
       "nomes": "PAGSEGURO INTERNET IP S.A., PAGSEGURO",
@@ -1887,7 +1874,7 @@
       "codigo_bacen": "Z9306143"
     },
     {
-      "cnpj": "37.753.531/0001-65",
+      "cnpj": "37.753.531/0002-46",
       "cnpj_raiz": "37753531",
       "razao_social": "PAGSMILE INSTITUIÇÃO DE PAGAMENTO LTDA.",
       "nomes": "PAGSMILE IP LTDA., PAGSMILE IP",
@@ -2212,7 +2199,7 @@
       "codigo_bacen": "Z9347664"
     },
     {
-      "cnpj": "01.425.787/0115-64",
+      "cnpj": "01.425.787/0160-19",
       "cnpj_raiz": "01425787",
       "razao_social": "REDECARD INSTITUIÇÃO DE PAGAMENTO S.A.",
       "nomes": "REDECARD IP",
@@ -2225,7 +2212,7 @@
       "codigo_bacen": "Z9353847"
     },
     {
-      "cnpj": "13.776.742/0001-55",
+      "cnpj": "13.776.742/0002-36",
       "cnpj_raiz": "13776742",
       "razao_social": "RENDIMENTOPAY INSTITUIÇÃO DE PAGAMENTO S.A.",
       "nomes": "RENDIMENTOPAY IP S.A, RENDIMENTOPAY",
@@ -2303,7 +2290,7 @@
       "codigo_bacen": "Z9118774"
     },
     {
-      "cnpj": "04.088.208/0072-59",
+      "cnpj": "04.088.208/0073-30",
       "cnpj_raiz": "04088208",
       "razao_social": "SEM PARAR INSTITUICAO DE PAGAMENTO LTDA",
       "nomes": "SEM PARAR IP",
@@ -2368,7 +2355,7 @@
       "codigo_bacen": "Z9478979"
     },
     {
-      "cnpj": "37.470.405/0001-01",
+      "cnpj": "37.470.405/0002-84",
       "cnpj_raiz": "37470405",
       "razao_social": "SMART SOLUTIONS GROUP INSTITUICAO DE PAGAMENTO LTDA",
       "nomes": "SMART SOLUTIONS GROUP IP LTDA, SMART SOLUTIONS",
@@ -2381,7 +2368,7 @@
       "codigo_bacen": "Z9069378"
     },
     {
-      "cnpj": "47.377.613/0001-06",
+      "cnpj": "47.377.613/0002-97",
       "cnpj_raiz": "47377613",
       "razao_social": "SOLVER INSTITUICAO DE PAGAMENTO LTDA",
       "nomes": "SOLVER IP, SOLVER",
@@ -2420,7 +2407,7 @@
       "codigo_bacen": "Z9215345"
     },
     {
-      "cnpj": "16.501.555/0001-57",
+      "cnpj": "16.501.555/0010-48",
       "cnpj_raiz": "16501555",
       "razao_social": "STONE INSTITUIÇÃO DE PAGAMENTO S.A.",
       "nomes": "STONE IP S.A.",
@@ -2433,7 +2420,7 @@
       "codigo_bacen": "Z9321250"
     },
     {
-      "cnpj": "10.314.753/0001-25",
+      "cnpj": "10.314.753/0002-06",
       "cnpj_raiz": "10314753",
       "razao_social": "STRADA PAY INSTITUIÇÃO DE PAGAMENTO LTDA.",
       "nomes": "STRADA PAY IP LTDA., STRADA PAY",
@@ -2459,7 +2446,7 @@
       "codigo_bacen": "Z9150179"
     },
     {
-      "cnpj": "16.668.076/0001-20",
+      "cnpj": "16.668.076/0006-34",
       "cnpj_raiz": "16668076",
       "razao_social": "SUMUP INSTITUICAO DE PAGAMENTO BRASIL LTDA",
       "nomes": "SUMUP IP",
@@ -2511,7 +2498,7 @@
       "codigo_bacen": "Z9081952"
     },
     {
-      "cnpj": "27.084.098/0001-69",
+      "cnpj": "27.084.098/0002-40",
       "cnpj_raiz": "27084098",
       "razao_social": "TRANSFEERA INSTITUIÇÃO DE PAGAMENTO S.A",
       "nomes": "TRANSFEERA IP S.A., TRANSFEERA",
@@ -2537,7 +2524,7 @@
       "codigo_bacen": "Z9074309"
     },
     {
-      "cnpj": "49.931.906/0001-19",
+      "cnpj": "49.931.906/0002-08",
       "cnpj_raiz": "49931906",
       "razao_social": "TRIO INSTITUICAO DE PAGAMENTO LTDA.",
       "nomes": "TRIO IP LTDA.",
@@ -2550,7 +2537,7 @@
       "codigo_bacen": "Z9066291"
     },
     {
-      "cnpj": "26.615.279/0001-01",
+      "cnpj": "26.615.279/0005-35",
       "cnpj_raiz": "26615279",
       "razao_social": "TYCOON TECHNOLOGY INSTITUICAO DE PAGAMENTO S.A",
       "nomes": "TYCOON TECHNOLOGY IIP S.A, ZEIT",
@@ -2628,7 +2615,7 @@
       "codigo_bacen": "Z9017768"
     },
     {
-      "cnpj": "07.314.204/0002-27",
+      "cnpj": "07.314.204/0001-46",
       "cnpj_raiz": "07314204",
       "razao_social": "VOX INSTITUICAO DE PAGAMENTO S.A.",
       "nomes": "VOX IP",
@@ -2667,7 +2654,7 @@
       "codigo_bacen": "Z9028684"
     },
     {
-      "cnpj": "32.708.748/0001-30",
+      "cnpj": "32.708.748/0002-10",
       "cnpj_raiz": "32708748",
       "razao_social": "WE PAY OUT INSTITUICAO DE PAGAMENTO LTDA.",
       "nomes": "WE PAY OUT IP LTDA., WE PAY OUT",
@@ -2758,7 +2745,7 @@
       "codigo_bacen": "Z9136900"
     },
     {
-      "cnpj": "26.264.220/0001-16",
+      "cnpj": "26.264.220/0004-69",
       "cnpj_raiz": "26264220",
       "razao_social": "ZERO INSTITUIÇÃO DE PAGAMENTO S.A.",
       "nomes": "ZERO IP, ZRO",
