@@ -4,16 +4,16 @@
     "fonte_judiciais": "https://www.gov.br/fazenda/pt-br/composicao/orgaos/secretaria-de-premios-e-apostas/transparencia-ativa-processos-de-autorizacao-de-apostas-de-quota-fixa/autorizadas-por-determinacao-judicial",
     "publicado_em": "20/07/2026 17h28",
     "atualizado_em": "09/10/2026 15h31",
-    "publicado_em_judicial": "20/07/2026 17h29",
-    "atualizado_em_judicial": "01/10/2026 15h45",
-    "verificado_em": "10/11/2026 16:37",
-    "verificado_em_iso": "2026-11-10T16:37:06-03:00",
+    "publicado_em_judicial": "10/11/2026 11h54",
+    "atualizado_em_judicial": "10/11/2026 17h59",
+    "verificado_em": "11/11/2026 16:29",
+    "verificado_em_iso": "2026-11-11T16:29:39-03:00",
     "total": 87,
     "total_administrativas": 85,
     "total_judiciais": 2,
-    "judicial_indisponivel": true,
-    "judicial_indisponivel_desde": "09/11/2026",
-    "judicial_ultima_confirmacao": "06/11/2026"
+    "judicial_indisponivel": false,
+    "judicial_indisponivel_desde": null,
+    "judicial_ultima_confirmacao": null
   },
   "empresas": [
     {
@@ -870,25 +870,19 @@
       "cnpj": "55.997.392/0001-05",
       "razao_social": "ZEROUMBET PLATAFORMA DIGITAL LTDA",
       "marcas": "ZEROUM, ENERGIA, SPORTVIP",
-      "dominio": "zeroum.bet, energia.bet, sportvip.bet",
+      "dominio": "zeroum.bet energia.bet sportvip.bet",
       "portaria": "5007941-50.2025.4.03.6100, em trâmite na 14ª Vara Federal Cível da Seção Judiciária de São Paulo",
       "requerimento": "",
-      "origem": "judicial",
-      "fonte_indisponivel": true,
-      "fonte_indisponivel_desde": "09/11/2026",
-      "ultima_confirmacao": "06/11/2026"
+      "origem": "judicial"
     },
     {
       "cnpj": "57.163.072/0001-77",
       "razao_social": "ZONA DE JOGO NEGÓCIOS E PARTICIPAÇÕES LTDA",
       "marcas": "ZONA DE JOGO, APOSTAONLINE, ONLYBETS",
-      "dominio": "zonadejogo.bet.br, apostaonline.bet.br, onlybets.bet.br",
+      "dominio": "zonadejogo.bet.br apostaonline.bet.br onlybets.bet.br",
       "portaria": "1096849-60.2025.4.01.3400, em trâmite na 4ª Vara Federal Cível da Seção Judiciária do Distrito Federal",
       "requerimento": "",
-      "origem": "judicial",
-      "fonte_indisponivel": true,
-      "fonte_indisponivel_desde": "09/11/2026",
-      "ultima_confirmacao": "06/11/2026"
+      "origem": "judicial"
     }
   ]
 }
