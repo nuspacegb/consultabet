@@ -1,15 +1,15 @@
 {
   "meta": {
     "fonte": "https://dadosabertos.bcb.gov.br/dataset/dados-cadastrais-de-entidades-autorizadas",
-    "api": "https://olinda.bcb.gov.br/olinda/servico/BcBase/versao/v2/odata/EntidadesSupervisionadas(dataBase=@dataBase)?@dataBase='11/13/2026'&$format=json&$top=5000&$filter=descricaoTipoEntidadeSupervisionada%20eq%20'Institui%C3%A7%C3%A3o%20de%20Pagamento'",
-    "data_base": "2026-11-13",
-    "verificado_em": "13/11/2026 15:47",
-    "verificado_em_iso": "2026-11-13T15:47:02-03:00",
+    "api": "https://olinda.bcb.gov.br/olinda/servico/BcBase/versao/v2/odata/EntidadesSupervisionadas(dataBase=@dataBase)?@dataBase='11/16/2026'&$format=json&$top=5000&$filter=descricaoTipoEntidadeSupervisionada%20eq%20'Institui%C3%A7%C3%A3o%20de%20Pagamento'",
+    "data_base": "2026-11-16",
+    "verificado_em": "16/11/2026 18:14",
+    "verificado_em_iso": "2026-11-16T18:14:37-03:00",
     "total": 213,
     "por_status": {
-      "autorizada": 193,
+      "autorizada": 194,
       "cancelada": 14,
-      "autorizada_sem_atividade": 6
+      "autorizada_sem_atividade": 5
     },
     "escopo": "Apenas Instituições de Pagamento supervisionadas pelo BCB"
   },
@@ -1763,8 +1763,8 @@
       "nomes": "PAG.AÍ IP S.A.",
       "tipo": "Instituição de Pagamento",
       "natureza_juridica": "Sociedade Anônima de Capital Fechado",
-      "situacao": "Autorizada sem Atividade",
-      "status": "autorizada_sem_atividade",
+      "situacao": "Autorizada em Atividade",
+      "status": "autorizada",
       "municipio": "Eusébio",
       "uf": "Ceará",
       "codigo_bacen": "Z8983029"
