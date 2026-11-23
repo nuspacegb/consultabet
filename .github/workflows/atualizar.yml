@@ -41,6 +41,11 @@ permissions:
   pull-requests: write   # abrir o PR para voce revisar
   issues: write          # abrir a issue de aviso quando algo falhar
 
+# Uma execucao por vez: evita duas rodadas mexendo na main ao mesmo tempo.
+concurrency:
+  group: atualizar-base
+  cancel-in-progress: false
+
 jobs:
   atualizar:
     runs-on: ubuntu-latest
@@ -88,7 +93,17 @@ jobs:
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add dados.json historico.json
           git commit -m "Verificacao de rotina: ${{ steps.scraper.outputs.total }} empresas, nada mudou"
-          git push
+          # Se outra execucao (ou voce) mexeu na main enquanto este robo
+          # rodava, o push e recusado ("fetch first"). Reaplica por cima e
+          # tenta de novo, em vez de falhar.
+          for i in 1 2 3 4; do
+            git push && exit 0
+            echo "Push recusado (tentativa $i). Atualizando e tentando de novo..."
+            git pull --rebase --autostash origin main
+            sleep $((i * 3))
+          done
+          echo "Nao consegui publicar a verificacao apos 4 tentativas."
+          exit 1
 
       - name: Verificar se algo mudou
         id: diff
